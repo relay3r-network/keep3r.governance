@@ -20,7 +20,7 @@ const styles = theme => ({
     flexWrap: 'wrap',
     padding: '28px 30px',
     borderRadius: '50px',
-    background: colors.black,
+    background: colors.almostBlack,
   },
   field: {
     minWidth: '100%',
@@ -67,9 +67,6 @@ class AddContractModal extends Component {
         <DialogContent>
           <div className={ classes.proposalContainer }>
             <div className={ classes.field }>
-              <div className={ classes.fieldTitle }>
-                <Typography variant='h4'>Contract Address</Typography>
-              </div>
               <TextField
                 fullWidth
                 className={ classes.titleInput }
@@ -78,14 +75,10 @@ class AddContractModal extends Component {
                 error={ addressError }
                 helperText={ addressError }
                 onChange={ this.onChange }
-                placeholder="Contract Address"
-                variant="outlined"
+                label="Contract Address"
               />
             </div>
             <div className={ classes.field }>
-              <div className={ classes.fieldTitle }>
-                <Typography variant='h4'>Contract ABI</Typography>
-              </div>
               <TextField
                 fullWidth
                 className={ classes.titleInput }
@@ -96,8 +89,7 @@ class AddContractModal extends Component {
                 onChange={ this.onChange }
                 multiline
                 rows={6}
-                placeholder="Contract ABI"
-                variant="outlined"
+                label="Contract ABI"
               />
             </div>
             <Button

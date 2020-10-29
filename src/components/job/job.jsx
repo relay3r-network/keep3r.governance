@@ -63,7 +63,7 @@ const styles = theme => ({
     // border: '1px solid rgb(174, 174, 174)',
     // borderRadius: '10px',
     marginBottom: '24px',
-    background: colors.black,
+    background: colors.almostBlack,
   },
   JobContainer: {
     display: 'flex',
@@ -73,7 +73,7 @@ const styles = theme => ({
     minWidth: '900px',
     border: '1px solid '+colors.borderBlue,
     margin: '20px',
-    background: colors.black,
+    background: colors.almostBlack,
   },
   liquidityContainer: {
     display: 'flex',
@@ -141,7 +141,7 @@ const styles = theme => ({
   },
   subTitle: {
     width: '100%',
-    color: colors.darkGray,
+    color: colors.lightGray,
   },
   stateNeutral: {
     border: '2px solid '+colors.lightGray,
@@ -213,6 +213,9 @@ const styles = theme => ({
   },
   gray: {
     color: colors.darkGray
+  },
+  textColorSecondary: {
+    color: colors.lightGray
   },
   textColor: {
     color: colors.text
@@ -399,7 +402,7 @@ class Job extends Component {
             <div className={ classes.jobMetadata }>
               <div className={ classes.jobInfo }>
                 <Typography variant='h4'>{ job._added ? moment(job._added*1000).format("YYYY/MM/DD kk:mm") : 'Not set' }</Typography>
-                <Typography variant='h4' className={ classes.gray }>Job Added</Typography>
+                <Typography variant='h4' className={ classes.textColorSecondary }>Job Added</Typography>
               </div>
               <div className={ classes.jobInfo }>
                 <Typography variant='h4'>{ job.credits ? job.credits.toFixed(2) : '0.00' } { keeperAsset ? keeperAsset.symbol : '' }</Typography>

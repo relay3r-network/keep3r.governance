@@ -60,7 +60,7 @@ const styles = theme => ({
     border: '1px solid rgb(174, 174, 174)',
     borderRadius: '10px',
     marginBottom: '24px',
-    background: colors.black,
+    background: colors.almostBlack,
   },
   headingName: {
     flex: 1,
@@ -95,7 +95,7 @@ const styles = theme => ({
     marginBottom: '12px',
     borderRadius: '10px',
     cursor: 'pointer',
-    background: colors.black,
+    background: colors.almostBlack,
     '&:hover': {
       background: "rgba(0,0,0,0.1)",
     },
@@ -167,6 +167,9 @@ const styles = theme => ({
   },
   gray: {
     color: colors.darkGray
+  },
+  textColorSecondary: {
+    color: colors.lightGray
   },
   statusIconGreen: {
     fontSize: '20px',

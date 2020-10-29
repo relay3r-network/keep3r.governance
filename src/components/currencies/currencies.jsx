@@ -33,7 +33,7 @@ const store = Store.store
 const styles = theme => ({
   root: {
     position: 'absolute',
-    background: colors.black,
+    background: colors.almostBlack,
     border: '1px solid '+colors.borderBlue,
     width: '100%',
     borderRadius: '10px',

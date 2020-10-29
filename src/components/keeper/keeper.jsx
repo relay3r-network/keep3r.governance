@@ -83,7 +83,7 @@ const styles = theme => ({
     border: '1px solid rgb(174, 174, 174)',
     borderRadius: '10px',
     marginBottom: '24px',
-    background: colors.black,
+    background: colors.almostBlack,
   },
   keeperLayout: {
     display: 'flex',
@@ -103,7 +103,7 @@ const styles = theme => ({
     padding: '24px',
     marginRight: '20px',
     flexDirection: 'column',
-    // background: colors.black,
+    // background: colors.almostBlack,
     alignSelf: 'flex-start'
   },
   valueContainer: {
@@ -144,7 +144,7 @@ const styles = theme => ({
     padding: '24px',
     marginLeft: '20px',
     flexDirection: 'column',
-    background: colors.black,
+    background: colors.almostBlack,
     alignSelf: 'flex-start'
   },
   title: {
@@ -190,7 +190,7 @@ const styles = theme => ({
     cursor: 'pointer'
   },
   actionInput: {
-    background: colors.black
+    background: colors.almostBlack
   },
   jobContainer: {
     display: 'flex',

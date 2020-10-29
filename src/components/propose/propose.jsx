@@ -49,7 +49,7 @@ const styles = theme => ({
     border: '1px solid rgb(174, 174, 174)',
     borderRadius: '10px',
     marginBottom: '24px',
-    background: colors.black,
+    background: colors.almostBlack,
   },
   proposalContainer: {
     display: 'flex',
@@ -59,7 +59,7 @@ const styles = theme => ({
     minWidth: '900px',
     border: '1px solid '+colors.borderBlue,
     margin: '20px',
-    background: colors.black,
+    background: colors.almostBlack,
   },
   field: {
     minWidth: '100%',
