@@ -99,7 +99,7 @@ const styles = theme => ({
     display: 'flex',
     width: '300px',
     border: '1px solid '+colors.borderBlue,
-    borderRadius: '10px',
+    // borderRadius: '10px',
     padding: '24px',
     marginRight: '20px',
     flexDirection: 'column',
@@ -393,7 +393,7 @@ class Keeper extends Component {
                 color='primary'
                 onClick={ this.onAddJob }
               >
-                add
+                Add
               </Button>
             </div>
             { this.renderJobs() }
@@ -506,7 +506,6 @@ class Keeper extends Component {
         <div className={ classes.valueActionBondsAction }>
           <Button
             size='small'
-            variant='contained'
             color='primary'
             onClick={ this.onBondAdd }
           >
@@ -514,7 +513,6 @@ class Keeper extends Component {
           </Button>
           <Button
             size='small'
-            variant='contained'
             color='primary'
             onClick={ this.onBondRemove }
           >

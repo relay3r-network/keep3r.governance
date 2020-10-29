@@ -115,8 +115,6 @@ const iswapTheme =  {
       },
     },
     body1: {
-      fontSize: '21px',
-      fontWeight: '300',
       WebkitFontSmoothing: "antialiased",
       MozOsxFontSmoothing: "grayscale",
       '@media (max-width: 899px)': {
@@ -124,8 +122,6 @@ const iswapTheme =  {
       },
     },
     body2: {
-      fontSize: '19px',
-      fontWeight: '300',
       WebkitFontSmoothing: "antialiased",
       MozOsxFontSmoothing: "grayscale",
       '@media (max-width: 899px)': {
@@ -158,12 +154,11 @@ const iswapTheme =  {
     },
     MuiButton: {
       root: {
-        borderRadius: '10px',
         padding: '10px 24px'
       },
       outlined: {
         padding: '10px 24px',
-        borderWidth: '2px !important'
+        // borderWidth: '2px !important'
       },
       label: {
         textTransform: 'none',
@@ -195,7 +190,7 @@ const iswapTheme =  {
       },
       root: {
         // border: "none !important",
-        borderRadius: '10px'
+        // borderRadius: '10px'
       },
       notchedOutline: {
         // border: "none !important"
