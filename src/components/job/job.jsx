@@ -60,8 +60,8 @@ const styles = theme => ({
   },
   disclaimer: {
     padding: '12px',
-    border: '1px solid rgb(174, 174, 174)',
-    borderRadius: '10px',
+    // border: '1px solid rgb(174, 174, 174)',
+    // borderRadius: '10px',
     marginBottom: '24px',
     background: colors.black,
   },

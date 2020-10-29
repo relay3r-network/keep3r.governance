@@ -446,7 +446,7 @@ class Keeper extends Component {
         address = job.address.substring(0,6)+'...'+job.address.substring(job.address.length-4,job.address.length)
       }
 
-      return <div onClick={ () => { this.navJob(job.address) } } className={ classes.jobContainer } key={ job.address }>
+      return <Button onClick={ () => { this.navJob(job.address) } } className={ classes.jobContainer } key={ job.address }>
         <div>
           <Typography variant='h4'>{ job._name }</Typography>
           <Typography variant='h4' className={ classes.gray }>{ address }</Typography>
@@ -455,7 +455,7 @@ class Keeper extends Component {
           <Typography variant='h4'>{ job.credits ? job.credits.toFixed(2) : '0.00' } { keeperAsset ? keeperAsset.symbol : '' }</Typography>
           <Typography variant='h4' className={ classes.gray }>Total Credits</Typography>
         </div>
-      </div>
+      </Button>
     })
   }
 
