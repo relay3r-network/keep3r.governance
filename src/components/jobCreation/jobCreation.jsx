@@ -213,6 +213,45 @@ class JobCreation extends Component {
             />
           </div>
           <div className={ classes.field }>
+            <TextField
+              fullWidth
+              disabled={ loading }
+              className={ classes.titleInput }
+              id={ 'name' }
+              value={ name }
+              error={ nameError }
+              helperText={ nameError }
+              onChange={ this.onChange }
+              label="Name of the job"
+            />
+          </div>
+          <div className={ classes.field }>
+            <TextField
+              fullWidth
+              disabled={ loading }
+              className={ classes.titleInput }
+              id={ 'docs' }
+              value={ docs }
+              error={ docsError }
+              helperText={ docsError }
+              onChange={ this.onChange }
+              label="Documentation describing the job spec"
+            />
+          </div>
+          <div className={ classes.field }>
+            <TextField
+              fullWidth
+              disabled={ loading }
+              className={ classes.titleInput }
+              id={ 'ipfs' }
+              value={ ipfs }
+              error={ ipfsError }
+              helperText={ ipfsError }
+              onChange={ this.onChange }
+              label="IPFS info"
+            />
+          </div>
+          <div className={ classes.field }>
             <div className={ classes.inputContainer }>
               <Typography variant='h6' className={ classes.balance } onClick={ () => { this.maxClicked('addLiquidityAmount') } }>{ keeperAsset.balance.toFixed(4) } { keeperAsset.symbol }</Typography>
               <TextField

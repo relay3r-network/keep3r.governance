@@ -191,6 +191,13 @@ const styles = theme => ({
   },
   actionInput: {
     background: colors.black
+  },
+  jobContainer: {
+    cursor: 'pointer',
+    padding: '12px 0px',
+    '&:hover': {
+      background: "rgba(0,0,0,0.1)",
+    },
   }
 })
 
