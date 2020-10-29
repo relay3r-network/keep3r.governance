@@ -193,11 +193,17 @@ const styles = theme => ({
     background: colors.black
   },
   jobContainer: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     cursor: 'pointer',
     padding: '12px 0px',
     '&:hover': {
       background: "rgba(0,0,0,0.1)",
     },
+  },
+  gray: {
+    color: colors.darkGray,
   }
 })
 
