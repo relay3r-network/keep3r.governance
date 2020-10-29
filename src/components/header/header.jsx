@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import { withStyles } from '@material-ui/core/styles';
 import {
   Typography,
+  Button
 } from '@material-ui/core';
 import { withRouter } from "react-router-dom";
 import { colors } from '../../theme'
@@ -390,9 +391,9 @@ class Header extends Component {
     } = this.props;
 
     return (
-      <div className={ (window.location.pathname.includes(screen) || (screen==='keep3r' && window.location.pathname==='/')  )?classes.linkActive:classes.link } onClick={ () => { this.nav(screen) } }>
+      <Button className={ (window.location.pathname.includes(screen) || (screen==='keep3r' && window.location.pathname==='/')  )?classes.linkActive:classes.link } onClick={ () => { this.nav(screen) } }>
         <Typography variant={'h4'} className={ `title` }>{ screen }</Typography>
-      </div>
+      </Button>
     )
   }
 
