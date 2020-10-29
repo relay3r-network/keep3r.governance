@@ -64,7 +64,7 @@ const styles = theme => ({
     border: '1px solid rgb(174, 174, 174)',
     borderRadius: '10px',
     marginBottom: '24px',
-    background: colors.white,
+    background: colors.black,
   },
   votesContainer: {
     display: 'flex',
@@ -112,7 +112,7 @@ const styles = theme => ({
     flexWrap: 'wrap',
     borderRadius: '10px',
     width: '100%',
-    background: colors.white
+    background: colors.black
   },
   voteButtonInline: {
     display: 'flex',

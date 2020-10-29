@@ -63,7 +63,7 @@ const styles = theme => ({
     border: '1px solid rgb(174, 174, 174)',
     borderRadius: '10px',
     marginBottom: '24px',
-    background: colors.white,
+    background: colors.black,
   },
   JobContainer: {
     display: 'flex',
@@ -73,7 +73,7 @@ const styles = theme => ({
     minWidth: '900px',
     border: '1px solid '+colors.borderBlue,
     margin: '20px',
-    background: colors.white,
+    background: colors.black,
   },
   liquidityContainer: {
     display: 'flex',

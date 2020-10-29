@@ -61,7 +61,7 @@ const styles = theme => ({
     border: '1px solid rgb(174, 174, 174)',
     borderRadius: '10px',
     marginBottom: '24px',
-    background: colors.white,
+    background: colors.black,
   },
   profileContainer: {
     display: 'flex',
@@ -71,7 +71,7 @@ const styles = theme => ({
     padding: '24px',
     marginRight: '20px',
     flexDirection: 'column',
-    background: colors.white,
+    background: colors.black,
     alignSelf: 'flex-start'
   },
   titleHeading: {

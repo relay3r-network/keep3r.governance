@@ -60,7 +60,7 @@ const styles = theme => ({
     border: '1px solid rgb(174, 174, 174)',
     borderRadius: '10px',
     marginBottom: '24px',
-    background: colors.white,
+    background: colors.black,
   },
   headingName: {
     flex: 1,
@@ -95,7 +95,7 @@ const styles = theme => ({
     marginBottom: '12px',
     borderRadius: '10px',
     cursor: 'pointer',
-    background: colors.white,
+    background: colors.black,
     '&:hover': {
       background: "rgba(0,0,0,0.1)",
     },

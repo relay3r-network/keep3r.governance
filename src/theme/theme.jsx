@@ -16,7 +16,7 @@ const WorkSans = {
     'U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF',
 };
 
-export const colors = {
+export let colors = {
   white: "#fff",
   black: '#000',
   darkBlue: "#2c3b57",
@@ -33,7 +33,7 @@ export const colors = {
   tomato: '#e56b73',
   purple: '#935dff',
 
-  text: "#212529",
+  text: "#FFFFFF",
   lightBlue: "#2F80ED",
   topaz: "#0b8f92",
   darkGray: "rgba(43,57,84,.5)",
@@ -145,7 +145,7 @@ const iswapTheme =  {
       },
     },
   },
-  type: 'light',
+  type: 'dark',
   overrides: {
     MuiCssBaseline: {
       '@global': {
@@ -228,7 +228,7 @@ const iswapTheme =  {
     },
     MuiSnackbarContent: {
       root: {
-        backgroundColor: colors.white,
+        backgroundColor: colors.black,
         padding: '0px',
         minWidth: 'auto',
         '@media (min-width: 960px)': {
@@ -322,6 +322,7 @@ const iswapTheme =  {
     }
   },
   palette: {
+    type: 'dark',
     primary: {
       main: colors.blue
     },
@@ -335,5 +336,5 @@ const iswapTheme =  {
   },
   breakpoints: breakpoints
 };
-
+colors.black = "#1e1e1e"
 export default iswapTheme;

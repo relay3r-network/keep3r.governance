@@ -20,7 +20,7 @@ const styles = theme => ({
     flexWrap: 'wrap',
     padding: '28px 30px',
     borderRadius: '50px',
-    background: colors.white,
+    background: colors.black,
   },
   field: {
     minWidth: '100%',

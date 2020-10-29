@@ -6,7 +6,8 @@ import {
   Typography,
   Button,
   TextField,
-  InputAdornment
+  InputAdornment,
+  Card
 } from '@material-ui/core';
 
 import Loader from '../loader'
@@ -82,10 +83,7 @@ const styles = theme => ({
     border: '1px solid rgb(174, 174, 174)',
     borderRadius: '10px',
     marginBottom: '24px',
-    background: colors.white,
-    [theme.breakpoints.down('sm')]: {
-      minWidth: '90vw',
-    }
+    background: colors.black,
   },
   keeperLayout: {
     display: 'flex',
@@ -105,13 +103,8 @@ const styles = theme => ({
     padding: '24px',
     marginRight: '20px',
     flexDirection: 'column',
-    background: colors.white,
-    alignSelf: 'flex-start',
-    [theme.breakpoints.down('sm')]: {
-      minWidth: '90vw',
-      marginRight: '0px',
-      marginBottom: '25px'
-    }
+    // background: colors.black,
+    alignSelf: 'flex-start'
   },
   valueContainer: {
     width: '100%',
@@ -119,7 +112,7 @@ const styles = theme => ({
     position: 'relative'
   },
   valueTitle: {
-    color: colors.darkGray,
+    color: colors.lightGray,
     marginBottom: '6px'
   },
   valueValue: {
@@ -151,14 +144,8 @@ const styles = theme => ({
     padding: '24px',
     marginLeft: '20px',
     flexDirection: 'column',
-    background: colors.white,
-    alignSelf: 'flex-start',
-    [theme.breakpoints.down('sm')]: {
-      marginLeft: '0px',
-      maxWidth: '90vw',
-      marginBottom: '20px'
-
-    }
+    background: colors.black,
+    alignSelf: 'flex-start'
   },
   title: {
     width: '100%',
@@ -203,23 +190,7 @@ const styles = theme => ({
     cursor: 'pointer'
   },
   actionInput: {
-    // background: colors.white
-  },
-  jobContainer: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    cursor: 'pointer',
-    padding: '12px 0px',
-    '&:hover': {
-      background: "rgba(0,0,0,0.1)",
-    },
-  },
-  gray: {
-    color: colors.darkGray,
-  },
-  totalCredits: {
-    textAlign: 'right'
+    background: colors.black
   }
 })
 
@@ -381,7 +352,7 @@ class Keeper extends Component {
     return (
       <div className={ classes.root }>
         <div className={ classes.keeperLayout }>
-          <div className={ classes.profileContainer }>
+          <Card className={ classes.profileContainer }>
             <Typography variant='h3' className={ classes.title }>Profile</Typography>
             <div className={ classes.valueContainer }>
               <Typography variant='h4' className={ classes.valueTitle }>Balance</Typography>
@@ -412,7 +383,7 @@ class Keeper extends Component {
                 </Button>
               </div>
             </div> */}
-          </div>
+          </Card>
           <div className={ classes.jobsContainer }>
             <div className={ classes.title }>
               <Typography variant='h3'>Jobs</Typography>

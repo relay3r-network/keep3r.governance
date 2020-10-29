@@ -41,7 +41,7 @@ const styles = theme => ({
     }
   },
   headerV2: {
-    background: colors.white,
+    background: colors.black,
     borderBottom: '1px solid '+colors.borderBlue,
     width: '100%',
     borderRadius: '0px',
@@ -119,10 +119,7 @@ const styles = theme => ({
       padding: '20px',
       borderRadius: '40px 40px 0 0',
       border: "1px solid "+colors.borderBlue,
-      '&:hover': {
-        background: colors.lightGray,
-        color: colors.black,
-      }
+      background: colors.black
     }
   },
   name: {
