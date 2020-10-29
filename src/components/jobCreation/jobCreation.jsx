@@ -200,9 +200,6 @@ class JobCreation extends Component {
         </div>
         <div className={ classes.JobContainer }>
           <div className={ classes.field }>
-            <div className={ classes.fieldTitle }>
-              <Typography variant='h4'>Job Address *</Typography>
-            </div>
             <TextField
               fullWidth
               disabled={ loading }
@@ -212,82 +209,26 @@ class JobCreation extends Component {
               error={ addressError }
               helperText={ addressError }
               onChange={ this.onChange }
-              placeholder="Ethereum address of your job"
-              variant="outlined"
+              label="Job address"
             />
           </div>
           <div className={ classes.field }>
-            <div className={ classes.fieldTitle }>
-              <Typography variant='h4'>Job Name</Typography>
-            </div>
-            <TextField
-              fullWidth
-              disabled={ loading }
-              className={ classes.titleInput }
-              id={ 'name' }
-              value={ name }
-              error={ nameError }
-              helperText={ nameError }
-              onChange={ this.onChange }
-              placeholder="Name of the job"
-              variant="outlined"
-            />
-          </div>
-          <div className={ classes.field }>
-            <div className={ classes.fieldTitle }>
-              <Typography variant='h4'>Documentation</Typography>
-            </div>
-            <TextField
-              fullWidth
-              disabled={ loading }
-              className={ classes.titleInput }
-              id={ 'docs' }
-              value={ docs }
-              error={ docsError }
-              helperText={ docsError }
-              onChange={ this.onChange }
-              placeholder="Documentation describing the job spec"
-              variant="outlined"
-            />
-          </div>
-          <div className={ classes.field }>
-            <div className={ classes.fieldTitle }>
-              <Typography variant='h4'>IPFS</Typography>
-            </div>
-            <TextField
-              fullWidth
-              disabled={ loading }
-              className={ classes.titleInput }
-              id={ 'ipfs' }
-              value={ ipfs }
-              error={ ipfsError }
-              helperText={ ipfsError }
-              onChange={ this.onChange }
-              placeholder="IPFS info"
-              variant="outlined"
-            />
-          </div>
-          <div className={ classes.field }>
-            <div className={ classes.fieldTitle }>
-              <Typography variant='h4'>Provide liquidity</Typography>
-            </div>
             <div className={ classes.inputContainer }>
               <Typography variant='h6' className={ classes.balance } onClick={ () => { this.maxClicked('addLiquidityAmount') } }>{ keeperAsset.balance.toFixed(4) } { keeperAsset.symbol }</Typography>
               <TextField
                 fullwidth
                 disabled={ loading }
                 id='addLiquidityAmount'
-                variant='outlined'
                 color='primary'
                 className={ classes.textField }
-                placeholder='Liquidity amount'
+                label='Liquidity amount'
                 value={ addLiquidityAmount }
                 error={ addLiquidityAmountError }
                 onChange={ this.onAmountChange }
                 InputProps={{
                   className: classes.inputField,
                   startAdornment: <InputAdornment position="start" className={ classes.inputAdornment }>
-                    <img src={ require('../../assets/tokens/'+keeperAsset.logo) } width="30px" alt="" />
+                    {/* <img src={ require('../../assets/tokens/'+keeperAsset.logo) } width="30px" alt="" /> */}
                   </InputAdornment>
                 }}
               />

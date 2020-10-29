@@ -115,7 +115,7 @@ const iswapTheme =  {
       },
     },
     body1: {
-      fontSize: '16px',
+      fontSize: '21px',
       fontWeight: '300',
       WebkitFontSmoothing: "antialiased",
       MozOsxFontSmoothing: "grayscale",
@@ -124,7 +124,7 @@ const iswapTheme =  {
       },
     },
     body2: {
-      fontSize: '16px',
+      fontSize: '19px',
       fontWeight: '300',
       WebkitFontSmoothing: "antialiased",
       MozOsxFontSmoothing: "grayscale",

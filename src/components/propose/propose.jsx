@@ -63,13 +63,13 @@ const styles = theme => ({
   },
   field: {
     minWidth: '100%',
-    paddingBottom: '20px'
+    paddingBottom: '15px'
   },
   fieldTitle: {
     paddingLeft: '20px'
   },
   titleInput: {
-    borderRadius: '25px'
+    // borderRadius: '25px'
   },
   buttonContainer: {
     display: 'flex',
@@ -156,9 +156,6 @@ class Propose extends Component {
         </div>
         <div className={ classes.proposalContainer }>
           <div className={ classes.field }>
-            <div className={ classes.fieldTitle }>
-              <Typography variant='h4'>Title</Typography>
-            </div>
             <TextField
               fullWidth
               disabled={ loading }
@@ -168,14 +165,10 @@ class Propose extends Component {
               error={ titleError }
               helperText={ titleError }
               onChange={ this.onChange }
-              placeholder="Title for the proposal"
-              variant="outlined"
+              label="Title"
             />
           </div>
           <div className={ classes.field }>
-            <div className={ classes.fieldTitle }>
-              <Typography variant='h4'>Description</Typography>
-            </div>
             <TextField
               fullWidth
               disabled={ loading }
@@ -187,14 +180,10 @@ class Propose extends Component {
               onChange={ this.onChange }
               multiline
               rows={6}
-              placeholder="Description for the proposal text"
-              variant="outlined"
+              label="Description"
             />
           </div>
           <div className={ classes.field }>
-            <div className={ classes.fieldTitle }>
-              <Typography variant='h4'>Actions</Typography>
-            </div>
             { this.renderContracts() }
           </div>
           <div>
