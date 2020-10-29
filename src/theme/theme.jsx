@@ -59,18 +59,6 @@ const breakpoints = createBreakpoints({
 
 const iswapTheme =  {
   typography: {
-    fontFamily: [
-      '"Work Sans Thin"',
-      'BlinkMacSystemFont',
-      '"Segoe UI"',
-      'Roboto',
-      '"Helvetica Neue"',
-      'Arial',
-      'sans-serif',
-      '"Apple Color Emoji"',
-      '"Segoe UI Emoji"',
-      '"Segoe UI Symbol"',
-    ].join(','),
     h1: {
       fontSize: '48px',
       fontWeight: '600',
