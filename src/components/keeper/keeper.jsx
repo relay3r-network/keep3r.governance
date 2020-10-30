@@ -204,6 +204,9 @@ const styles = theme => ({
   },
   gray: {
     color: colors.darkGray,
+  },
+  totalCredits: {
+    textAlign: 'right'
   }
 })
 
