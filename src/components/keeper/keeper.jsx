@@ -160,6 +160,7 @@ const styles = (theme) => ({
       marginBottom: '20px'
 
     }
+    background: colors.almostBlack,
   },
   title: {
     width: "100%",
