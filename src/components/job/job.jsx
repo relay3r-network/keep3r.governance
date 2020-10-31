@@ -73,7 +73,7 @@ const styles = theme => ({
     minWidth: '900px',
     border: '1px solid '+colors.borderBlue,
     margin: '20px',
-    background: colors.almostBlack,
+    // background: colors.almostBlack,
   },
   liquidityContainer: {
     display: 'flex',

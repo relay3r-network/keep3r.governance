@@ -1,21 +1,22 @@
 import React, { Component } from "react";
-import * as moment from 'moment';
+import * as moment from "moment";
 import { withRouter } from "react-router-dom";
-import { withStyles } from '@material-ui/core/styles';
+import { withStyles } from "@material-ui/core/styles";
 import {
   Typography,
   Button,
   TextField,
   InputAdornment,
-  Card
-} from '@material-ui/core';
+  Card,
+  Grid,
+} from "@material-ui/core";
 
-import Loader from '../loader'
+import Loader from "../loader";
 
-import SearchIcon from '@material-ui/icons/Search';
+import SearchIcon from "@material-ui/icons/Search";
 
 import Store from "../../stores";
-import { colors } from '../../theme'
+import { colors } from "../../theme";
 
 import {
   ERROR,
@@ -41,7 +42,7 @@ import {
   WITHDRAW_BOND_RETURNED
 } from '../../constants'
 
-const styles = theme => ({
+const styles = (theme) => ({
   root: {
     flex: 1,
     display: 'flex',
@@ -53,8 +54,11 @@ const styles = theme => ({
     // paddingBottom: '60px',
     // background: colors.white,
   },
+  grid: {
+    flexGrow: 1,
+  },
   between: {
-    width: '40px'
+    width: "40px",
   },
   intro: {
     width: '100%',
@@ -96,159 +100,158 @@ const styles = theme => ({
     }
   },
   profileContainer: {
-    display: 'flex',
-    width: '300px',
-    border: '1px solid '+colors.borderBlue,
+    display: "flex",
+    width: "300px",
+    border: "1px solid " + colors.borderBlue,
     // borderRadius: '10px',
-    padding: '24px',
-    marginRight: '20px',
-    flexDirection: 'column',
+    padding: "24px",
+    marginRight: "20px",
+    flexDirection: "column",
     // background: colors.almostBlack,
-    alignSelf: 'flex-start'
+    alignSelf: "flex-start",
   },
   valueContainer: {
-    width: '100%',
-    margin: '12px 0px',
-    position: 'relative'
+    width: "100%",
+    margin: "12px 0px",
+    position: "relative",
   },
   valueTitle: {
     color: colors.lightGray,
-    marginBottom: '6px'
+    marginBottom: "6px",
   },
-  valueValue: {
-
-  },
+  valueValue: {},
   valueAction: {
-    display: 'flex',
-    alignItems: 'flex-end',
-    justifyContent: 'space-between',
+    display: "flex",
+    alignItems: "flex-end",
+    justifyContent: "space-between",
   },
   valueActionBonds: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'flex-start',
-    justifyContent: 'flex-start'
+    display: "flex",
+    flexDirection: "column",
+    // alignItems: "flex-start",
+    // justifyContent: "flex-start",
   },
   valueActionBondsAction: {
-    marginTop: '12px',
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    minWidth: '100%'
+    marginTop: "12px",
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    minWidth: "100%",
   },
   jobsContainer: {
-    display: 'flex',
+    display: "flex",
     flex: 1,
-    border: '1px solid '+colors.borderBlue,
-    borderRadius: '10px',
-    padding: '24px',
-    marginLeft: '20px',
-    flexDirection: 'column',
+    border: "1px solid " + colors.borderBlue,
+    borderRadius: "10px",
+    padding: "24px",
+    marginLeft: "20px",
+    flexDirection: "column",
     background: colors.almostBlack,
-    alignSelf: 'flex-start'
+    alignSelf: "flex-start",
   },
   title: {
-    width: '100%',
-    borderBottom: '1px solid '+colors.borderBlue,
-    paddingBottom: '12px',
-    marginBottom: '12px',
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'flex-end',
-    height: '40px'
+    width: "100%",
+    borderBottom: "1px solid " + colors.borderBlue,
+    paddingBottom: "12px",
+    marginBottom: "12px",
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "flex-end",
+    height: "40px",
   },
   inputContainer: {
     flex: 1,
-    display: 'flex',
-    position: 'relative',
+    display: "flex",
+    position: "relative",
   },
   balance: {
-    fontSize: '0.75rem',
-    fontWeight: 'bold',
-    cursor: 'pointer',
-    position: 'absolute',
+    fontSize: "0.75rem",
+    fontWeight: "bold",
+    cursor: "pointer",
+    position: "absolute",
     zIndex: 1,
-    right: '8px',
-    top: '2px',
-    letterSpacing: '0.1rem',
-    '&:hover': {
-      textDecoration: 'underline'
-    }
+    right: "8px",
+    top: "2px",
+    letterSpacing: "0.1rem",
+    "&:hover": {
+      textDecoration: "underline",
+    },
   },
   textField: {
     flex: 1,
-    width: '100%',
+    width: "100%",
   },
   valueActionButtons: {
-    display: 'flex',
-    width: '100%',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: '12px'
+    display: "flex",
+    width: "100%",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginTop: "12px",
   },
   searchInputAdornment: {
-    cursor: 'pointer'
+    cursor: "pointer",
   },
   actionInput: {
-    background: colors.almostBlack
+    background: colors.almostBlack,
   },
   jobContainer: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    cursor: 'pointer',
-    padding: '12px 0px',
-    '&:hover': {
-      background: "rgba(0,0,0,0.1)",
-    },
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    cursor: "pointer",
+    padding: "12px 0px",
+    // "&:hover": {
+    //   background: "rgba(0,0,0,0.1)",
+    // },
   },
   gray: {
     color: colors.darkGray,
   },
   totalCredits: {
-    textAlign: 'right'
-  }
-})
+    textAlign: "right",
+  },
+});
 
-const emitter = Store.emitter
-const dispatcher = Store.dispatcher
-const store = Store.store
+const emitter = Store.emitter;
+const dispatcher = Store.dispatcher;
+const store = Store.store;
 
 class Keeper extends Component {
-
   constructor(props) {
-    super()
+    super();
 
-    const account = store.getStore('account')
-    const keeperAsset = store.getStore('keeperAsset')
-    const jobs = store.getStore('jobs').filter((job) => { return job.credits > 0 })
-    const now = store.getStore('currentBlock')
+    const account = store.getStore("account");
+    const keeperAsset = store.getStore("keeperAsset");
+    const jobs = store.getStore("jobs").filter((job) => {
+      return job.credits > 0;
+    });
+    const now = store.getStore("currentBlock");
 
     this.state = {
       loading: true,
       account: account,
       keeperAsset: keeperAsset,
       jobs: jobs,
-      bondAmount: '',
+      bondAmount: "",
       bondAmountError: false,
-      removeBondAmount: '',
+      removeBondAmount: "",
       removeBondAmountError: false,
-      currentBlock: now
-    }
+      currentBlock: now,
+    };
 
-    emitter.emit(START_LOADING, GET_KEEPER)
-    emitter.emit(START_LOADING, GET_JOBS)
-    emitter.emit(START_LOADING, GET_KEEPERS)
-    emitter.emit(START_LOADING, GET_CURRENT_BLOCK)
-    dispatcher.dispatch({ type: GET_KEEPER, content: {} })
-    dispatcher.dispatch({ type: GET_JOBS, content: {} })
-    dispatcher.dispatch({ type: GET_KEEPERS, content: {} })
-    dispatcher.dispatch({ type: GET_CURRENT_BLOCK, content: { } })
-  };
+    emitter.emit(START_LOADING, GET_KEEPER);
+    emitter.emit(START_LOADING, GET_JOBS);
+    emitter.emit(START_LOADING, GET_KEEPERS);
+    emitter.emit(START_LOADING, GET_CURRENT_BLOCK);
+    dispatcher.dispatch({ type: GET_KEEPER, content: {} });
+    dispatcher.dispatch({ type: GET_JOBS, content: {} });
+    dispatcher.dispatch({ type: GET_KEEPERS, content: {} });
+    dispatcher.dispatch({ type: GET_CURRENT_BLOCK, content: {} });
+  }
 
   componentWillMount() {
     emitter.on(ERROR, this.errorReturned);
-    emitter.on(KEEPER_RETURNED, this.keeperProfileReturned)
+    emitter.on(KEEPER_RETURNED, this.keeperProfileReturned);
     emitter.on(JOBS_RETURNED, this.jobsReturned);
     emitter.on(KEEPERS_RETURNED, this.keepersReturned);
     emitter.on(CONNECTION_CONNECTED, this.connectionConnected);
@@ -258,11 +261,11 @@ class Keeper extends Component {
     emitter.on(ACTIVATE_BOND_RETURNED, this.activateBondReturned);
     emitter.on(WITHDRAW_BOND_RETURNED, this.withdrawBondReturned);
     emitter.on(CURRENT_BLOCK_RETURNED, this.currentBlockReturned);
-  };
+  }
 
   componentWillUnmount() {
     emitter.removeListener(ERROR, this.errorReturned);
-    emitter.removeListener(KEEPER_RETURNED, this.keeperProfileReturned)
+    emitter.removeListener(KEEPER_RETURNED, this.keeperProfileReturned);
     emitter.removeListener(JOBS_RETURNED, this.jobsReturned);
     emitter.removeListener(KEEPERS_RETURNED, this.keepersReturned);
     emitter.removeListener(CONNECTION_CONNECTED, this.connectionConnected);
@@ -272,53 +275,57 @@ class Keeper extends Component {
     emitter.removeListener(ACTIVATE_BOND_RETURNED, this.activateBondReturned);
     emitter.removeListener(WITHDRAW_BOND_RETURNED, this.withdrawBondReturned);
     emitter.removeListener(CURRENT_BLOCK_RETURNED, this.currentBlockReturned);
-  };
-
-  connectionConnected = () => {
-    emitter.emit(START_LOADING, GET_KEEPER)
-    emitter.emit(START_LOADING, GET_JOBS)
-    emitter.emit(START_LOADING, GET_KEEPERS)
-    emitter.emit(START_LOADING, GET_CURRENT_BLOCK)
-
-    dispatcher.dispatch({ type: GET_KEEPER, content: {} })
-    dispatcher.dispatch({ type: GET_JOBS, content: {} })
-    dispatcher.dispatch({ type: GET_KEEPERS, content: {} })
-    dispatcher.dispatch({ type: GET_CURRENT_BLOCK, content: { } })
   }
 
+  connectionConnected = () => {
+    emitter.emit(START_LOADING, GET_KEEPER);
+    emitter.emit(START_LOADING, GET_JOBS);
+    emitter.emit(START_LOADING, GET_KEEPERS);
+    emitter.emit(START_LOADING, GET_CURRENT_BLOCK);
+
+    dispatcher.dispatch({ type: GET_KEEPER, content: {} });
+    dispatcher.dispatch({ type: GET_JOBS, content: {} });
+    dispatcher.dispatch({ type: GET_KEEPERS, content: {} });
+    dispatcher.dispatch({ type: GET_CURRENT_BLOCK, content: {} });
+  };
+
   errorReturned = (source) => {
-    emitter.emit(STOP_LOADING, source)
-    this.setState({ loading: false })
+    emitter.emit(STOP_LOADING, source);
+    this.setState({ loading: false });
   };
 
   keeperProfileReturned = () => {
-    emitter.emit(STOP_LOADING, GET_KEEPERS)
+    emitter.emit(STOP_LOADING, GET_KEEPERS);
 
-    console.log(store.getStore('keeperAsset'))
+    console.log(store.getStore("keeperAsset"));
 
     this.setState({
-      keeperAsset: store.getStore('keeperAsset'),
-      loading: false
-    })
-  }
+      keeperAsset: store.getStore("keeperAsset"),
+      loading: false,
+    });
+  };
 
   jobsReturned = () => {
-    emitter.emit(STOP_LOADING, GET_JOBS)
-    this.setState({ jobs: store.getStore('jobs').filter((job) => { return job.credits > 0 }) })
-  }
+    emitter.emit(STOP_LOADING, GET_JOBS);
+    this.setState({
+      jobs: store.getStore("jobs").filter((job) => {
+        return job.credits > 0;
+      }),
+    });
+  };
 
   keepersReturned = () => {
-    emitter.emit(STOP_LOADING, GET_KEEPERS)
-    this.setState({ keepers: store.getStore('keepers') })
-  }
+    emitter.emit(STOP_LOADING, GET_KEEPERS);
+    this.setState({ keepers: store.getStore("keepers") });
+  };
 
   addBondReturned = () => {
     this.setState({
       loading: false,
       onBond: false,
-    })
-    emitter.emit(STOP_LOADING, ADD_BOND)
-  }
+    });
+    emitter.emit(STOP_LOADING, ADD_BOND);
+  };
 
   removeBondReturned = () => {
     this.setState({
@@ -331,9 +338,9 @@ class Keeper extends Component {
   activateBondReturned = () => {
     this.setState({
       loading: false,
-    })
-    emitter.emit(STOP_LOADING, ACTIVATE_BOND_RETURNED)
-  }
+    });
+    emitter.emit(STOP_LOADING, ACTIVATE_BOND_RETURNED);
+  };
 
   withdrawBondReturned = () => {
     this.setState({
@@ -343,9 +350,9 @@ class Keeper extends Component {
   }
 
   currentBlockReturned = () => {
-    emitter.emit(STOP_LOADING, GET_CURRENT_BLOCK)
-    this.setState({ currentBlock: store.getStore('currentBlock') })
-  }
+    emitter.emit(STOP_LOADING, GET_CURRENT_BLOCK);
+    this.setState({ currentBlock: store.getStore("currentBlock") });
+  };
 
   render() {
     const { classes } = this.props;
@@ -358,7 +365,7 @@ class Keeper extends Component {
       currentBlock,
       searchKeeper,
       searchKeeperError,
-    } = this.state
+    } = this.state;
 
     // var delegates = 'Self';
     // if (keeperAsset.delegates && keeperAsset.delegates !== '0x0000000000000000000000000000000000000000') {
@@ -374,11 +381,13 @@ class Keeper extends Component {
               <Typography variant='h4' className={ classes.valueTitle }>Balance</Typography>
               <Typography variant='h3' className={ classes.valueValue }> { keeperAsset.balance ? keeperAsset.balance.toFixed(2) : '0.00' } { keeperAsset.symbol } </Typography>
             </div>
-            <div className={ classes.valueContainer }>
-              <Typography variant='h4' className={ classes.valueTitle }>Bonds</Typography>
-              { (!onBond && !onBondRemove) && this.renderBond() }
-              { onBond && this.renderBondAdd() }
-              { onBondRemove && this.renderBondRemove() }
+            <div className={classes.valueContainer}>
+              <Typography variant="h4" className={classes.valueTitle}>
+                Bonds
+              </Typography>
+              {!onBond && !onBondRemove && this.renderBond()}
+              {onBond && this.renderBondAdd()}
+              {onBondRemove && this.renderBondRemove()}
             </div>
             { this.renderPendingBonds() }
             { this.renderActivateBonds() }
@@ -400,23 +409,23 @@ class Keeper extends Component {
               </div>
             </div> */}
           </Card>
-          <div className={ classes.jobsContainer }>
-            <div className={ classes.title }>
-              <Typography variant='h3'>Jobs</Typography>
+          <div className={classes.jobsContainer}>
+            <div className={classes.title}>
+              <Typography variant="h3">Jobs</Typography>
               <Button
-                variant='contained'
-                size='small'
-                color='primary'
-                onClick={ this.onAddJob }
+                variant="contained"
+                size="small"
+                color="primary"
+                onClick={this.onAddJob}
               >
                 Add
               </Button>
             </div>
-            { this.renderJobs() }
+            {this.renderJobs()}
           </div>
         </div>
       </div>
-    )
+    );
   }
 
   renderSearch = () => {
@@ -446,20 +455,24 @@ class Keeper extends Component {
   }
 
   renderJobs = () => {
-    const { classes } = this.props
-    const { jobs, keeperAsset } = this.state
+    const { classes } = this.props;
+    const { jobs, keeperAsset } = this.state;
 
-    if(jobs.length === 0) {
-      return <div>
-        <Typography variant='h4'>There are no jobs</Typography>
-      </div>
+    if (jobs.length === 0) {
+      return (
+        <div>
+          <Typography variant="h4">There are no jobs</Typography>
+        </div>
+      );
     }
 
     return jobs.map((job) => {
-
       var address = null;
       if (job.address) {
-        address = job.address.substring(0,6)+'...'+job.address.substring(job.address.length-4,job.address.length)
+        address =
+          job.address.substring(0, 6) +
+          "..." +
+          job.address.substring(job.address.length - 4, job.address.length);
       }
 
       return <Button onClick={ () => { this.navJob(job.address) } } className={ classes.jobContainer } key={ job.address }>
@@ -486,16 +499,21 @@ class Keeper extends Component {
             <Typography variant='h4' className={ classes.valueTitle }>First Seen</Typography>
             <Typography variant='h3' className={ classes.valueValue }> { moment(keeperAsset.firstSeen*1000).format("YYYY/MM/DD kk:mm") }</Typography>
           </div>
-          <div className={ classes.valueContainer }>
-            <Typography variant='h4' className={ classes.valueTitle }>Last Job</Typography>
-            <Typography variant='h3' className={ classes.valueValue }> { moment(keeperAsset.lastJob*1000).format("YYYY/MM/DD kk:mm") }</Typography>
+          <div className={classes.valueContainer}>
+            <Typography variant="h4" className={classes.valueTitle}>
+              Last Job
+            </Typography>
+            <Typography variant="h3" className={classes.valueValue}>
+              {" "}
+              {moment(keeperAsset.lastJob * 1000).format("YYYY/MM/DD kk:mm")}
+            </Typography>
           </div>
         </React.Fragment>
       )
     } else {
       return null
     }
-  }
+  };
 
   renderWorkCompleted = () => {
     const { classes } = this.props
@@ -511,10 +529,8 @@ class Keeper extends Component {
   }
 
   renderBond = () => {
-    const { classes } = this.props
-    const {
-      keeperAsset,
-    } = this.state
+    const { classes } = this.props;
+    const { keeperAsset } = this.state;
 
     return (
       <div className={ classes.valueActionBonds }>
@@ -536,8 +552,8 @@ class Keeper extends Component {
           </Button>
         </div>
       </div>
-    )
-  }
+    );
+  };
 
   renderPendingBonds = () => {
     const { classes } = this.props
@@ -681,67 +697,79 @@ class Keeper extends Component {
   }
 
   renderBondAdd = () => {
-    const { classes } = this.props
-    const {
-      keeperAsset,
-      bondAmount,
-      bondAmountError,
-      loading
-    } = this.state
+    const { classes } = this.props;
+    const { keeperAsset, bondAmount, bondAmountError, loading } = this.state;
 
     return (
       <div>
-        <div className={ classes.inputContainer }>
-          <Typography variant='h6' className={ classes.balance } onClick={ () => { this.maxClicked('bond') } }>{ keeperAsset.balance.toFixed(4) } { keeperAsset.symbol }</Typography>
+        <div className={classes.inputContainer}>
+          <Typography
+            variant="h6"
+            className={classes.balance}
+            onClick={() => {
+              this.maxClicked("bond");
+            }}
+          >
+            {keeperAsset.balance.toFixed(4)} {keeperAsset.symbol}
+          </Typography>
           <TextField
             fullwidth
-            disabled={ loading }
-            id='bondAmount'
-            variant='outlined'
-            color='primary'
-            className={ classes.textField }
-            placeholder='Amount to bond'
-            value={ bondAmount }
-            error={ bondAmountError }
-            onChange={ this.onChange }
+            disabled={loading}
+            id="bondAmount"
+            variant="outlined"
+            color="primary"
+            className={classes.textField}
+            placeholder="Amount to bond"
+            value={bondAmount}
+            error={bondAmountError}
+            onChange={this.onChange}
             InputProps={{
               className: classes.inputField,
-              startAdornment: <InputAdornment position="start" className={ classes.inputAdornment }>
-                <img src={ require('../../assets/tokens/'+keeperAsset.logo) } width="30px" alt="" />
-              </InputAdornment>
+              startAdornment: (
+                <InputAdornment
+                  position="start"
+                  className={classes.inputAdornment}
+                >
+                  <img
+                    src={require("../../assets/tokens/" + keeperAsset.logo)}
+                    width="30px"
+                    alt=""
+                  />
+                </InputAdornment>
+              ),
             }}
           />
         </div>
-        <div className={ classes.valueActionButtons }>
+        <div className={classes.valueActionButtons}>
           <Button
-            variant='text'
-            size='small'
-            color='primary'
-            onClick={ this.onBondAddClose }
+            variant="text"
+            size="small"
+            color="primary"
+            onClick={this.onBondAddClose}
           >
             cancel
           </Button>
           <Button
-            variant='contained'
-            size='small'
-            color='primary'
-            onClick={ this.onBond }
+            variant="contained"
+            size="small"
+            color="primary"
+            onClick={this.onBond}
           >
             bond
           </Button>
         </div>
       </div>
-    )
-  }
+    );
+  };
 
   renderBondRemove = () => {
-    const { classes } = this.props
+    const { classes } = this.props;
     const {
       keeperAsset,
       removeBondAmount,
       removeBondAmountError,
-      loading
-    } = this.state
+      loading,
+    } = this.state;
 
     return (
       <div>
@@ -749,177 +777,191 @@ class Keeper extends Component {
           <Typography variant='h6' className={ classes.balance } onClick={ () => { this.maxClicked('bondRemove') } }>{ keeperAsset.bonds.toFixed(4) } { keeperAsset.symbol }</Typography>
           <TextField
             fullwidth
-            disabled={ loading }
-            id='removeBondAmount'
-            variant='outlined'
-            color='primary'
-            className={ classes.textField }
-            placeholder='Amount to unbond'
-            value={ removeBondAmount }
-            error={ removeBondAmountError }
-            onChange={ this.onChange }
+            disabled={loading}
+            id="removeBondAmount"
+            variant="outlined"
+            color="primary"
+            className={classes.textField}
+            placeholder="Amount to unbond"
+            value={removeBondAmount}
+            error={removeBondAmountError}
+            onChange={this.onChange}
             InputProps={{
               className: classes.inputField,
-              startAdornment: <InputAdornment position="start" className={ classes.inputAdornment }>
-                <img src={ require('../../assets/tokens/'+keeperAsset.logo) } width="30px" alt="" />
-              </InputAdornment>
+              startAdornment: (
+                <InputAdornment
+                  position="start"
+                  className={classes.inputAdornment}
+                >
+                  <img
+                    src={require("../../assets/tokens/" + keeperAsset.logo)}
+                    width="30px"
+                    alt=""
+                  />
+                </InputAdornment>
+              ),
             }}
           />
         </div>
-        <div className={ classes.valueActionButtons }>
+        <div className={classes.valueActionButtons}>
           <Button
-            variant='text'
-            size='small'
-            color='primary'
-            onClick={ this.onBondRemoveClose }
+            variant="text"
+            size="small"
+            color="primary"
+            onClick={this.onBondRemoveClose}
           >
             cancel
           </Button>
           <Button
-            variant='contained'
-            size='small'
-            color='primary'
-            onClick={ this.onCallBondRemove }
+            variant="contained"
+            size="small"
+            color="primary"
+            onClick={this.onCallBondRemove}
           >
             unbond
           </Button>
         </div>
       </div>
-    )
-  }
+    );
+  };
 
   maxClicked = (type) => {
-    const {
-      keeperAsset
-    } = this.state
+    const { keeperAsset } = this.state;
 
     switch (type) {
-      case 'bond':
-        this.setState({ bondAmount: keeperAsset.balance })
+      case "bond":
+        this.setState({ bondAmount: keeperAsset.balance });
         break;
-      case 'bondRemove':
-        this.setState({ removeBondAmount: keeperAsset.bonds })
+      case "bondRemove":
+        this.setState({ removeBondAmount: keeperAsset.bonds });
         break;
       case 'bondWithdraw':
         this.setState({ withdrawBondAmount: keeperAsset.bonds })
         break;
       default:
     }
-  }
+  };
 
   onSearchChange = (event) => {
-    let val = []
-    val[event.target.id] = event.target.value
-    this.setState(val)
-  }
+    let val = [];
+    val[event.target.id] = event.target.value;
+    this.setState(val);
+  };
 
   onSearchKeyDown = (event) => {
     if (event.which === 13) {
       this.onSearch();
     }
-  }
+  };
 
   onSearch = () => {
-    this.setState({ searchKeeperError: false })
-    const {
-      searchKeeper
-    } = this.state
+    this.setState({ searchKeeperError: false });
+    const { searchKeeper } = this.state;
 
-    let error = false
+    let error = false;
 
-    if(!searchKeeper || searchKeeper === "") {
-      this.setState({ searchKeeperError: 'Invalid' })
-      error = true
+    if (!searchKeeper || searchKeeper === "") {
+      this.setState({ searchKeeperError: "Invalid" });
+      error = true;
     }
 
-    if(!error) {
-      this.props.history.push('/keep3r/'+searchKeeper)
+    if (!error) {
+      this.props.history.push("/keep3r/" + searchKeeper);
     }
-  }
+  };
 
   onChange = (event) => {
-    if(event.target.value !== '' && isNaN(event.target.value)) {
-      return false
+    if (event.target.value !== "" && isNaN(event.target.value)) {
+      return false;
     }
 
-    const { keeperAsset } = this.state
-    if(event.target.id === 'bondAmount' && event.target.value > keeperAsset.balance) {
-      event.target.value = keeperAsset.balance
+    const { keeperAsset } = this.state;
+    if (
+      event.target.id === "bondAmount" &&
+      event.target.value > keeperAsset.balance
+    ) {
+      event.target.value = keeperAsset.balance;
     }
-    if(event.target.id === 'removeBondAmount' && event.target.value > keeperAsset.bonds) {
-      event.target.value = keeperAsset.bonds
+    if (
+      event.target.id === "removeBondAmount" &&
+      event.target.value > keeperAsset.bonds
+    ) {
+      event.target.value = keeperAsset.bonds;
     }
 
-    let val = []
-    val[event.target.id] = event.target.value
-    this.setState(val)
-  }
+    let val = [];
+    val[event.target.id] = event.target.value;
+    this.setState(val);
+  };
 
   onBond = () => {
-    this.setState({ bondAmountError: false })
-    const { keeperAsset, bondAmount } = this.state
+    this.setState({ bondAmountError: false });
+    const { keeperAsset, bondAmount } = this.state;
 
-    let error = false
+    let error = false;
 
-    if(bondAmount > keeperAsset.balance) {
-      error = true
-      this.setState({ bondAmountError: 'Amount > balance' })
+    if (bondAmount > keeperAsset.balance) {
+      error = true;
+      this.setState({ bondAmountError: "Amount > balance" });
     }
 
-    if(!error) {
-      emitter.emit(START_LOADING, ADD_BOND)
-      this.setState({ loading: true })
-      dispatcher.dispatch({ type: ADD_BOND, content: { amount: bondAmount } })
+    if (!error) {
+      emitter.emit(START_LOADING, ADD_BOND);
+      this.setState({ loading: true });
+      dispatcher.dispatch({ type: ADD_BOND, content: { amount: bondAmount } });
     }
-  }
+  };
 
   onCallBondRemove = () => {
-    this.setState({ bondAmountError: false })
-    const { keeperAsset, removeBondAmount } = this.state
+    this.setState({ bondAmountError: false });
+    const { keeperAsset, removeBondAmount } = this.state;
 
-    let error = false
+    let error = false;
 
     if(removeBondAmount > keeperAsset.bonds) {
       error = true
       this.setState({ removeBondAmountError: 'Amount > bonded balance' })
     }
 
-    if(!error) {
-      emitter.emit(START_LOADING, REMOVE_BOND)
-      this.setState({ loading: true })
-      dispatcher.dispatch({ type: REMOVE_BOND, content: { amount: removeBondAmount } })
+    if (!error) {
+      emitter.emit(START_LOADING, REMOVE_BOND);
+      this.setState({ loading: true });
+      dispatcher.dispatch({
+        type: REMOVE_BOND,
+        content: { amount: removeBondAmount },
+      });
     }
-  }
+  };
 
   onBondAdd = () => {
-    this.setState({ onBond: true })
-  }
+    this.setState({ onBond: true });
+  };
 
   onBondAddClose = () => {
-    this.setState({ onBond: false })
-  }
+    this.setState({ onBond: false });
+  };
 
   onBondRemove = () => {
-    this.setState({ onBondRemove: true })
-  }
+    this.setState({ onBondRemove: true });
+  };
 
   onBondRemoveClose = () => {
-    this.setState({ onBondRemove: false })
-  }
+    this.setState({ onBondRemove: false });
+  };
 
   onActivate = () => {
-    emitter.emit(START_LOADING, ACTIVATE_BOND)
-    this.setState({ loading: true })
-    dispatcher.dispatch({ type: ACTIVATE_BOND, content: { } })
-  }
+    emitter.emit(START_LOADING, ACTIVATE_BOND);
+    this.setState({ loading: true });
+    dispatcher.dispatch({ type: ACTIVATE_BOND, content: {} });
+  };
 
   onAddJob = () => {
-    this.props.history.push('/keep3r/job')
-  }
+    this.props.history.push("/keep3r/job");
+  };
 
   navJob = (address) => {
-    this.props.history.push('/keep3r/job/'+address)
-  }
+    this.props.history.push("/keep3r/job/" + address);
+  };
 }
 
 export default withRouter(withStyles(styles)(Keeper));
