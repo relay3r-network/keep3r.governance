@@ -51,8 +51,8 @@ const styles = (theme) => ({
     width: '100%',
     justifyContent: 'flex-start',
     alignItems: 'center',
-    // paddingBottom: '60px',
-    // background: colors.white,
+    // marginTop: '40px',
+    background: colors.almostBlack,
   },
   grid: {
     flexGrow: 1,
@@ -88,6 +88,9 @@ const styles = (theme) => ({
     borderRadius: '10px',
     marginBottom: '24px',
     background: colors.almostBlack,
+    [theme.breakpoints.down('sm')]: {
+      minWidth: '90vw',
+    }
   },
   keeperLayout: {
     display: 'flex',
@@ -110,6 +113,7 @@ const styles = (theme) => ({
     background: colors.almostBlack,
     alignSelf: 'flex-start',
     [theme.breakpoints.down('sm')]: {
+      minWidth: '90vw',
       marginRight: '0px',
       marginBottom: '25px'
     }
@@ -154,6 +158,9 @@ const styles = (theme) => ({
     background: colors.almostBlack,
     [theme.breakpoints.down('sm')]: {
       marginLeft: '0px',
+      maxWidth: '90vw',
+      marginBottom: '20px'
+
     }
   },
   title: {
