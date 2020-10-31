@@ -159,7 +159,7 @@ const styles = (theme) => ({
       maxWidth: '90vw',
       marginBottom: '20px'
 
-    }
+    },
     background: colors.almostBlack,
   },
   title: {
