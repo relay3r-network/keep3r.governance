@@ -120,7 +120,10 @@ const styles = theme => ({
       padding: '20px',
       borderRadius: '40px 40px 0 0',
       border: "1px solid "+colors.borderBlue,
-      background: colors.almostBlack
+      '&:hover': {
+        background: colors.almostBlack,
+        color: colors.white,
+      }    
     }
   },
   name: {

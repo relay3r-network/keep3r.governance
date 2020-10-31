@@ -51,8 +51,7 @@ const styles = (theme) => ({
     width: '100%',
     justifyContent: 'flex-start',
     alignItems: 'center',
-    marginTop: '40px',
-    background: colors.almostBlack,
+    paddingBottom: '60px',
   },
   grid: {
     flexGrow: 1,
@@ -155,7 +154,6 @@ const styles = (theme) => ({
     marginLeft: '20px',
     flexDirection: 'column',
     alignSelf: 'flex-start',
-    background: colors.almostBlack,
     [theme.breakpoints.down('sm')]: {
       marginLeft: '0px',
       maxWidth: '90vw',
@@ -206,7 +204,7 @@ const styles = (theme) => ({
     cursor: "pointer",
   },
   actionInput: {
-    background: colors.almostBlack,
+    // background: colors.white
   },
   jobContainer: {
     display: "flex",
