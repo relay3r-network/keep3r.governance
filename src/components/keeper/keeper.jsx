@@ -100,15 +100,19 @@ const styles = (theme) => ({
     }
   },
   profileContainer: {
-    display: "flex",
-    width: "300px",
-    border: "1px solid " + colors.borderBlue,
-    // borderRadius: '10px',
-    padding: "24px",
-    marginRight: "20px",
-    flexDirection: "column",
-    // background: colors.almostBlack,
-    alignSelf: "flex-start",
+    display: 'flex',
+    width: '300px',
+    border: '1px solid '+colors.borderBlue,
+    borderRadius: '10px',
+    padding: '24px',
+    marginRight: '20px',
+    flexDirection: 'column',
+    background: colors.almostBlack,
+    alignSelf: 'flex-start',
+    [theme.breakpoints.down('sm')]: {
+      marginRight: '0px',
+      marginBottom: '25px'
+    }
   },
   valueContainer: {
     width: "100%",
@@ -141,13 +145,16 @@ const styles = (theme) => ({
   jobsContainer: {
     display: "flex",
     flex: 1,
-    border: "1px solid " + colors.borderBlue,
-    borderRadius: "10px",
-    padding: "24px",
-    marginLeft: "20px",
-    flexDirection: "column",
+    border: '1px solid '+colors.borderBlue,
+    borderRadius: '10px',
+    padding: '24px',
+    marginLeft: '20px',
+    flexDirection: 'column',
+    alignSelf: 'flex-start',
     background: colors.almostBlack,
-    alignSelf: "flex-start",
+    [theme.breakpoints.down('sm')]: {
+      marginLeft: '0px',
+    }
   },
   title: {
     width: "100%",
