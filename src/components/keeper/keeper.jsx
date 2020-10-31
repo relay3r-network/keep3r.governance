@@ -51,7 +51,7 @@ const styles = (theme) => ({
     width: '100%',
     justifyContent: 'flex-start',
     alignItems: 'center',
-    // marginTop: '40px',
+    marginTop: '40px',
     background: colors.almostBlack,
   },
   grid: {
