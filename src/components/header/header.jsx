@@ -122,8 +122,8 @@ const styles = theme => ({
       border: "1px solid "+colors.borderBlue,
       '&:hover': {
         background: colors.almostBlack,
-        color: colors.white,
-      }    
+        color: colors.lightGray,
+      }
     }
   },
   name: {
@@ -146,12 +146,12 @@ const styles = theme => ({
       justifyContent: 'space-evenly',
       zIndex: 100,
       color: colors.white,
-      background: colors.blue,
+      background: colors.lightBlue,
       padding: '20px 30px 20px 30px',
       borderRadius: '40px 40px 0 0',
-      border: "1px solid "+colors.borderBlue,
+    //   border: "1px solid "+colors.borderBlue,
       '&:active': {
-        color: colors.black,
+        color: colors.lightGray,
       }
     },
   },
