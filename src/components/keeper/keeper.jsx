@@ -8,8 +8,17 @@ import {
   TextField,
   InputAdornment,
   Card,
+  CardContent,
+  CardActions,
+  CardHeader,
+  Fab,
   Grid,
+  List,
+  ListItem,
+  ListItemText,
+  Tooltip,
 } from "@material-ui/core";
+import AddIcon from "@material-ui/icons/Add";
 
 import Loader from "../loader";
 
@@ -45,13 +54,13 @@ import {
 const styles = (theme) => ({
   root: {
     flex: 1,
-    display: 'flex',
-    flexDirection: 'column',
-    maxWidth: '900px',
-    width: '100%',
-    justifyContent: 'flex-start',
-    alignItems: 'center',
-    paddingBottom: '60px',
+    display: "flex",
+    flexDirection: "column",
+    maxWidth: "900px",
+    width: "100%",
+    justifyContent: "flex-start",
+    alignItems: "center",
+    paddingBottom: "60px",
   },
   grid: {
     flexGrow: 1,
@@ -60,62 +69,62 @@ const styles = (theme) => ({
     width: "40px",
   },
   intro: {
-    width: '100%',
-    position: 'relative',
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    maxWidth: '900px',
-    marginBottom: '20px',
+    width: "100%",
+    position: "relative",
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    maxWidth: "900px",
+    marginBottom: "20px",
     // background: colors.white,
-    [theme.breakpoints.down('sm')]: {
-      flexWrap: 'wrap',
-      justifyContent: 'center',
-      marginBottom: '10px',
-    }
+    [theme.breakpoints.down("sm")]: {
+      flexWrap: "wrap",
+      justifyContent: "center",
+      marginBottom: "10px",
+    },
   },
   topButton: {
-    width: '160px',
-    marginBottom: '24px',
-    [theme.breakpoints.down('sm')]: {
-      minWidth: '90vw',
-    }
+    width: "160px",
+    marginBottom: "24px",
+    [theme.breakpoints.down("sm")]: {
+      minWidth: "90vw",
+    },
   },
   disclaimer: {
-    padding: '12px',
-    border: '1px solid rgb(174, 174, 174)',
-    borderRadius: '10px',
-    marginBottom: '24px',
+    padding: "12px",
+    border: "1px solid rgb(174, 174, 174)",
+    borderRadius: "10px",
+    marginBottom: "24px",
     background: colors.almostBlack,
-    [theme.breakpoints.down('sm')]: {
-      minWidth: '90vw',
-    }
+    [theme.breakpoints.down("sm")]: {
+      minWidth: "90vw",
+    },
   },
   keeperLayout: {
-    display: 'flex',
-    maxWidth: '1200px',
-    width: '100%',
-    flexWrap: 'wrap',
-    justifyContent: 'flex-start',
-    [theme.breakpoints.down('sm')]: {
-      justifyContent: 'center'
-    }
+    display: "flex",
+    maxWidth: "1200px",
+    width: "100%",
+    flexWrap: "wrap",
+    justifyContent: "flex-start",
+    [theme.breakpoints.down("sm")]: {
+      justifyContent: "center",
+    },
   },
   profileContainer: {
-    display: 'flex',
-    width: '300px',
-    border: '1px solid '+colors.borderBlue,
-    borderRadius: '10px',
-    padding: '24px',
-    marginRight: '20px',
-    flexDirection: 'column',
+    display: "flex",
+    width: "300px",
+    border: "1px solid " + colors.borderBlue,
+    borderRadius: "10px",
+    padding: "24px",
+    marginRight: "20px",
+    flexDirection: "column",
     background: colors.almostBlack,
-    alignSelf: 'flex-start',
-    [theme.breakpoints.down('sm')]: {
-      minWidth: '90vw',
-      marginRight: '0px',
-      marginBottom: '25px'
-    }
+    alignSelf: "flex-start",
+    [theme.breakpoints.down("sm")]: {
+      minWidth: "90vw",
+      marginRight: "0px",
+      marginBottom: "25px",
+    },
   },
   valueContainer: {
     width: "100%",
@@ -148,23 +157,30 @@ const styles = (theme) => ({
   jobsContainer: {
     display: "flex",
     flex: 1,
-    border: '1px solid '+colors.borderBlue,
-    borderRadius: '10px',
-    padding: '24px',
-    marginLeft: '20px',
-    flexDirection: 'column',
-    alignSelf: 'flex-start',
-    [theme.breakpoints.down('sm')]: {
-      marginLeft: '0px',
-      maxWidth: '90vw',
-      marginBottom: '20px'
-
+    // border: '1px solid '+colors.borderBlue,
+    borderRadius: "10px",
+    padding: "24px",
+    marginLeft: "20px",
+    flexDirection: "column",
+    alignSelf: "flex-start",
+    [theme.breakpoints.down("sm")]: {
+      marginLeft: "0px",
+      maxWidth: "90vw",
+      marginBottom: "20px",
     },
-    background: colors.almostBlack,
+    // background: colors.almostBlack,
+  },
+  cardActions: {
+    // zIndex: 2,
+    // display: 'flex',
+    alignItems: "flex-start",
+    justifyContent: "flex-end",
+    // flexWrap: 'wrap',
+    // padding: 0,
   },
   title: {
     width: "100%",
-    borderBottom: "1px solid " + colors.borderBlue,
+    // borderBottom: "1px solid " + colors.borderBlue,
     paddingBottom: "12px",
     marginBottom: "12px",
     display: "flex",
@@ -212,9 +228,10 @@ const styles = (theme) => ({
     alignItems: "center",
     justifyContent: "space-between",
     cursor: "pointer",
-    padding: "12px 0px",
+    // padding: "10px 0px",
+    // marginBottom: "8px"
     // "&:hover": {
-    //   background: "rgba(0,0,0,0.1)",
+    //   background: colors.darkGray
     // },
   },
   gray: {
@@ -422,20 +439,44 @@ class Keeper extends Component {
               </div>
             </div> */}
           </Card>
-          <div className={classes.jobsContainer}>
-            <div className={classes.title}>
-              <Typography variant="h3">Jobs</Typography>
-              <Button
+          <Card className={classes.jobsContainer}>
+            <CardHeader
+              title={
+                // <div className={classes.title}>
+                <Typography variant="h3">Jobs</Typography>
+              }
+              action={
+                <Tooltip title="Add Job" aria-label="add">
+                  <Fab
+                    color="primary"
+                    size="medium"
+                    variant="extended"
+                    color="primary"
+                    onClick={this.onAddJob}
+                    aria-label="add"
+                  >
+                    Add
+                    <AddIcon />
+                  </Fab>
+                </Tooltip>
+              }
+            ></CardHeader>
+            <CardContent>
+              <List component="nav" aria-label="main mailbox folders">
+                {this.renderJobs()}
+              </List>
+            </CardContent>
+            <CardActions className={classes.cardActions}>
+              {/* <Button
                 variant="contained"
-                size="small"
+                size="medium"
                 color="primary"
                 onClick={this.onAddJob}
               >
                 Add
-              </Button>
-            </div>
-            {this.renderJobs()}
-          </div>
+              </Button> */}
+            </CardActions>
+          </Card>
         </div>
       </div>
     );
@@ -569,10 +610,8 @@ class Keeper extends Component {
   };
 
   renderPendingBonds = () => {
-    const { classes } = this.props
-    const {
-      keeperAsset,
-    } = this.state
+    const { classes } = this.props;
+    const { keeperAsset } = this.state;
 
     if(keeperAsset.isActive && keeperAsset.pendingBonds === 0) {
       return null
@@ -584,9 +623,9 @@ class Keeper extends Component {
             <Typography variant='h3' className={ classes.valueValue }> { keeperAsset.pendingBonds ? keeperAsset.pendingBonds.toFixed(2) : '0.00' } { keeperAsset.symbol } </Typography>
           </div>
         </div>
-      )
+      );
     } else {
-      return null
+      return null;
     }
   }
 
