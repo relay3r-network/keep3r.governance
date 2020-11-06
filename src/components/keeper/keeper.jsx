@@ -488,7 +488,6 @@ class Keeper extends Component {
 
     return (
       <div className={ classes.valueContainer }>
-        <Typography variant='h4' className={ classes.valueTitle }>Find keep3r</Typography>
         <TextField
           fullWidth
           disabled={ loading }
@@ -497,8 +496,7 @@ class Keeper extends Component {
           value={ searchKeeper }
           error={ searchKeeperError }
           onChange={ this.onSearchChange }
-          placeholder="0x....."
-          variant="outlined"
+          label="Search keep3r"
           onKeyDown= { this.onSearchKeyDown }
           InputProps={{
             endAdornment: <InputAdornment position="end" className={ classes.searchInputAdornment } onClick={ this.onSearch }><SearchIcon /></InputAdornment>,
@@ -529,19 +527,51 @@ class Keeper extends Component {
           job.address.substring(job.address.length - 4, job.address.length);
       }
 
-      return <Button onClick={ () => { this.navJob(job.address) } } className={ classes.jobContainer } key={ job.address }>
-        <div>
-          <Typography variant='h4'>{ job._name }</Typography>
-          <Typography variant='h4' className={ classes.gray }>{ address }</Typography>
-        </div>
-        <div className={ classes.totalCredits }>
-          <Typography variant='h4'>{ job.credits ? job.credits.toFixed(2) : '0.00' } { keeperAsset ? keeperAsset.symbol : '' }</Typography>
-          <Typography variant='h4' className={ classes.gray }>Total Credits</Typography>
-        </div>
-      </Button>
-    })
-  }
-
+      return (
+        <ListItem
+          alignItems="flex-start"
+          button
+          onClick={() => {
+            this.navJob(job.address);
+          }}
+        >
+          <ListItemText
+            className={classes.jobContainer}
+            key={job.address}
+            primary={
+              <React.Fragment>
+                <div>
+                  <Typography variant="h4">{job._name}</Typography>
+                  <Typography
+                    variant="h4"
+                    className={classes.textColorSecondary}
+                  >
+                    {address}
+                  </Typography>
+                </div>
+              </React.Fragment>
+            }
+            secondary={
+              <React.Fragment>
+                <div className={classes.totalCredits}>
+                  <Typography variant="h4">
+                    {job.credits ? job.credits.toFixed(2) : "0.00"}{" "}
+                    {keeperAsset ? keeperAsset.symbol : ""}
+                  </Typography>
+                  <Typography
+                    variant="h4"
+                    className={classes.textColorSecondary}
+                  >
+                    Total Credits
+                  </Typography>
+                </div>
+              </React.Fragment>
+            }
+          />
+        </ListItem>
+      );
+    });
+  };
   renderFirstSeen = () => {
     const { classes } = this.props
     const { keeperAsset } = this.state
@@ -587,24 +617,28 @@ class Keeper extends Component {
     const { keeperAsset } = this.state;
 
     return (
-      <div className={ classes.valueActionBonds }>
-        <Typography variant='h3' className={ classes.valueValue }> { keeperAsset.bonds ? keeperAsset.bonds.toFixed(2) : '0.00' } { keeperAsset.symbol } </Typography>
-        <div className={ classes.valueActionBondsAction }>
-          <Button
-            size='small'
-            color='primary'
-            onClick={ this.onBondAdd }
-          >
-            Bond
-          </Button>
-          <Button
-            size='small'
-            color='primary'
-            onClick={ this.onBondRemove }
-          >
-            Unbond
-          </Button>
-        </div>
+      <div className={classes.valueActionBonds}>
+        <Typography variant="h3" className={classes.valueValue}>
+          {" "}
+          {keeperAsset.bonds ? keeperAsset.bonds.toFixed(2) : "0.00"}{" "}
+          {keeperAsset.symbol}{" "}
+        </Typography>
+        <Grid container className={classes.grid} spacing={4}>
+          <Grid item xs={12}>
+            <Grid container justify="center" spacing={2}>
+              <Grid key={"bond"} item>
+                <Button size="small" color="primary" onClick={this.onBondAdd}>
+                  Bond
+                </Button>
+              </Grid>
+              <Grid key={"unbond"} item>
+                <Button size="small" color="primary" onClick={this.onBondRemove}>
+                  Unbond
+                </Button>
+              </Grid>
+            </Grid>
+          </Grid>
+        </Grid>
       </div>
     );
   };

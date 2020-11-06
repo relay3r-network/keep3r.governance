@@ -2,7 +2,6 @@ import React, { Component } from 'react'
 import { withStyles } from '@material-ui/core/styles';
 import {
   Typography,
-  Button
 } from '@material-ui/core';
 import { withRouter } from "react-router-dom";
 import { colors } from '../../theme'
@@ -206,7 +205,7 @@ const styles = theme => ({
     border: '1px solid rgb(174, 174, 174)',
     borderRadius: '0.75rem',
     lineHeight: '1.2',
-    background: colors.white,
+    background: colors.almostBlack,
     marginTop: '40px'
   }
 });
@@ -394,9 +393,9 @@ class Header extends Component {
     } = this.props;
 
     return (
-      <Button className={ (window.location.pathname.includes(screen) || (screen==='keep3r' && window.location.pathname==='/')  )?classes.linkActive:classes.link } onClick={ () => { this.nav(screen) } }>
+      <div className={ (window.location.pathname.includes(screen) || (screen==='keep3r' && window.location.pathname==='/')  )?classes.linkActive:classes.link } onClick={ () => { this.nav(screen) } }>
         <Typography variant={'h4'} className={ `title` }>{ screen }</Typography>
-      </Button>
+      </div>
     )
   }
 

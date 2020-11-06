@@ -406,7 +406,7 @@ class Job extends Component {
               </div>
               <div className={ classes.jobInfo }>
                 <Typography variant='h4'>{ job.credits ? job.credits.toFixed(2) : '0.00' } { keeperAsset ? keeperAsset.symbol : '' }</Typography>
-                <Typography variant='h4' className={ classes.gray }>Total Credits</Typography>
+                <Typography variant='h4' className={ classes.textColorSecondary }>Total Credits</Typography>
               </div>
             </div>
           }
@@ -553,7 +553,7 @@ class Job extends Component {
       return (<div className={ classes.jobPreviewContainer }>
           <div className={ classes.jobInfo }>
             <Typography variant='h4'><a href={job._docs} target='_blank' className={ classes.textColor }>{ job._docs ? job._docs : 'Not set' }</a></Typography>
-            <Typography variant='h4' className={ classes.gray }>Documentation</Typography>
+            <Typography variant='h4' className={ classes.textColorSecondary }>Documentation</Typography>
           </div>
           { job.fileContent &&
             <TextField

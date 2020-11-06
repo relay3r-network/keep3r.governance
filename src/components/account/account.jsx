@@ -261,6 +261,9 @@ class Account extends Component {
             </div>
           }
         </div>
+        {console.log("Gas stuff")}
+        {console.log(gasPrices)}
+
         { account.address &&
           <div className={ classes.setting }>
             <Typography variant='h6' className={ classes.settingTitle }>Select Gas Setting</Typography>
