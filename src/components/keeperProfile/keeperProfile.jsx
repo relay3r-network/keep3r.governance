@@ -154,7 +154,7 @@ class Keeper extends Component {
     let keeperAddress = (props && props.match && props.match.params && props.match.params.address) ? props.match.params.address : null
 
     if(!keeperAddress) {
-      props.history.push('/keep3r/')
+      props.history.push('/relay3r/')
     }
 
     emitter.emit(START_LOADING, GET_KEEPER_PROFILE)
@@ -186,7 +186,7 @@ class Keeper extends Component {
     let keeperAddress = (props && props.match && props.match.params && props.match.params.address) ? props.match.params.address : null
 
     if(!keeperAddress) {
-      props.history.push('/keep3r/')
+      props.history.push('/relay3r/')
     }
 
     emitter.emit(START_LOADING, GET_KEEPER_PROFILE)
@@ -252,7 +252,7 @@ class Keeper extends Component {
               variant="outlined"
               color="secondary"
               disabled={ loading }
-              onClick={ () => {  this.props.history.push('/keep3r') } }
+              onClick={ () => {  this.props.history.push('/relay3r') } }
             >
               <Typography variant={ 'h4'}>Back</Typography>
             </Button>
@@ -265,7 +265,7 @@ class Keeper extends Component {
             <div>
               <Typography variant='h3' className={ classes.titleAddress } onClick={ () => { this.navigateEtherscan(keeperProfile.profileAddress) } }>{ keeperProfile.profileAddress }</Typography>
               { keeperProfile.isActive && <Typography variant='h4' className={ classes.subTitle }>First seen at { moment(keeperProfile.firstSeen*1000).format("YYYY/MM/DD kk:mm") }</Typography> }
-              { !keeperProfile.isActive && <Typography variant='h4' className={ classes.subTitle }>Not an active Keep3r</Typography> }
+              { !keeperProfile.isActive && <Typography variant='h4' className={ classes.subTitle }>Not an active relay3r</Typography> }
             </div>
             <div>
               { keeperProfile &&

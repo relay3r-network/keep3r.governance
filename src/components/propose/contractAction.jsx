@@ -30,7 +30,6 @@ const styles = theme => ({
   },
   contractAction: {
     borderRadius: '10px',
-    background: '#dedede',
     padding: '12px',
     margin: '12px 0px'
   },

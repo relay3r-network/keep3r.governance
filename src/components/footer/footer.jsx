@@ -108,24 +108,25 @@ class Footer extends Component {
 
     return (
       <div className={classes.footer}>
+          <Typography className={ classes.heading } variant={ 'h6'}>Forked from Keep3R</Typography>
 
         <div className={ classes.products }>
           <Typography className={ classes.heading } variant={ 'h6'}>Documentation</Typography>
-          <div  className={ classes.link } onClick={()=> window.open("https://docs.keep3r.network/", "_blank")} >
+          <div  className={ classes.link } onClick={()=> window.open("https://docs.relay3r.network/", "_blank")} >
             <DescriptionIcon height='15px' className={ classes.icon } />
-            <Typography variant={ 'h4'} >docs.keep3r.network</Typography>
+            <Typography variant={ 'h4'} >docs.relay3r.network</Typography>
           </div>
         </div>
         <div className={ classes.products }>
           <Typography className={ classes.heading } variant={ 'h6'}>Github</Typography>
-          <div  className={ classes.link } onClick={()=> window.open("https://github.com/keep3r-network", "_blank")} >
+          <div  className={ classes.link } onClick={()=> window.open("https://github.com/relay3r-network", "_blank")} >
             <img alt="" src={ require('../../assets/github.svg') } height='24px' className={ classes.icon } />
-            <Typography variant={ 'h4'} >keep3r-network</Typography>
+            <Typography variant={ 'h4'} >relay3r-network</Typography>
           </div>
         </div>
         <div className={ classes.products }>
           <Typography className={ classes.heading } variant={ 'h6'}>Registry</Typography>
-          <div  className={ classes.link } onClick={()=> window.open("https://docs.keep3r.network/registry", "_blank")} >
+          <div  className={ classes.link } onClick={()=> window.open("https://docs.relay3r.network/registry", "_blank")} >
             <DescriptionIcon height='15px' className={ classes.icon } />
             <Typography variant={ 'h4'} >registry</Typography>
           </div>

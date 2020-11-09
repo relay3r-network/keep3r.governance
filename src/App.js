@@ -178,16 +178,16 @@ class App extends Component {
                 <Route path="/governance">
                   <Proposals />
                 </Route>
-                <Route path="/keep3r/job/:address">
+                <Route path="/relay3r/job/:address">
                   <Job />
                 </Route>
-                <Route path="/keep3r/job">
+                <Route path="/relay3r/job">
                   <JobCreation />
                 </Route>
-                <Route path="/keep3r/:address">
+                <Route path="/relay3r/:address">
                   <KeeperProfile />
                 </Route>
-                <Route path="/keep3r">
+                <Route path="/relay3r">
                   <Keeper />
                 </Route>
                 <Route path="/">

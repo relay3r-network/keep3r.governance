@@ -8,11 +8,11 @@ const config = {
   etherscanAPIKey: process.env.REACT_APP_ETHERSCAN_KEY,
 
   liquidityAddress: '0x375Da3e307Ef2E1A9D9e1516f80738Ca52cb7B85',
-  governanceAddress: '0x71c882bC3191b36bbE839e55dec2e03024943DCD',
-  rewardsAddress: '0x1cEB5cB57C4D4E2b2433641b95Dd330A33185A44',
+  governanceAddress: '0x0bA94c028240Ed459E0982cE8406385a79BFab35',
+  rewardsAddress: '0xf771733a465441437EcF64FF410e261516c7c5F3',
 
-  keeperAddress: '0x1cEB5cB57C4D4E2b2433641b95Dd330A33185A44',
-  jobRegistryAddress: '0x7396899638410094b3690f8bd2b56f07fdab620c',
+  keeperAddress: '0xf771733a465441437EcF64FF410e261516c7c5F3',
+  jobRegistryAddress: '0x22Dcdf0196227f6890C9736e7BE0126Bee83751a',
 
 };
 

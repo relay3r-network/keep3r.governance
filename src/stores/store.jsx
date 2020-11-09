@@ -147,8 +147,8 @@ class Store {
       keeperAsset: {
         address: config.keeperAddress,
         abi: KeeperABI,
-        symbol: 'KP3R',
-        name: 'Keep3r',
+        symbol: 'RL3R',
+        name: 'Relay3r',
         decimals: 18,
         balance: 0,
         logo: 'KPR-logo.png',
@@ -165,7 +165,7 @@ class Store {
         work: 0,
         workCompleted: 0,
         isActive: false,
-        voteSymbol: 'KBD',
+        voteSymbol: 'RLD',
         currentVotes: 0
       },
       jobs: [

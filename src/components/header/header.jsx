@@ -290,16 +290,16 @@ class Header extends Component {
       <div className={ classes.root }>
         <div className={ classes.headerV2 }>
           <div className={ classes.icon }>
-            <img
+            {/* <img
               alt=""
               src={ require('../../assets/logo.svg') }
               height={ '37px' }
               onClick={ () => { this.nav('') } }
-            />
-            <Typography variant={ 'h3'} className={ classes.name } onClick={ () => { this.nav('') } }>keep3r.network</Typography>
+            /> */}
+            <Typography variant={ 'h3'} className={ classes.name } onClick={ () => { this.nav('') } }>relay3r.network</Typography>
           </div>
           <div className={ classes.links }>
-            { this.renderLink('keep3r') }
+            { this.renderLink('relay3r') }
             { this.renderLink('governance') }
           </div>
           <div className={ classes.account }>
@@ -393,7 +393,7 @@ class Header extends Component {
     } = this.props;
 
     return (
-      <div className={ (window.location.pathname.includes(screen) || (screen==='keep3r' && window.location.pathname==='/')  )?classes.linkActive:classes.link } onClick={ () => { this.nav(screen) } }>
+      <div className={ (window.location.pathname.includes(screen) || (screen==='relay3r' && window.location.pathname==='/')  )?classes.linkActive:classes.link } onClick={ () => { this.nav(screen) } }>
         <Typography variant={'h4'} className={ `title` }>{ screen }</Typography>
       </div>
     )

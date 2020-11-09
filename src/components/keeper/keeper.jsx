@@ -496,7 +496,7 @@ class Keeper extends Component {
           value={ searchKeeper }
           error={ searchKeeperError }
           onChange={ this.onSearchChange }
-          label="Search keep3r"
+          label="Search relay3r"
           onKeyDown= { this.onSearchKeyDown }
           InputProps={{
             endAdornment: <InputAdornment position="end" className={ classes.searchInputAdornment } onClick={ this.onSearch }><SearchIcon /></InputAdornment>,
@@ -860,7 +860,7 @@ class Keeper extends Component {
     return (
       <div>
         <div className={ classes.inputContainer }>
-          <Typography variant='h6' className={ classes.balance } onClick={ () => { this.maxClicked('bondRemove') } }>{ keeperAsset.bonds.toFixed(4) } { keeperAsset.symbol }</Typography>
+          <Typography variant='h6' className={ classes.balance } onClick={ () => { this.maxClicked('bondRemove') } }>{ keeperAsset.bonds } { keeperAsset.symbol }</Typography>
           <TextField
             fullwidth
             disabled={loading}
@@ -952,7 +952,7 @@ class Keeper extends Component {
     }
 
     if (!error) {
-      this.props.history.push("/keep3r/" + searchKeeper);
+      this.props.history.push("/relay3r/" + searchKeeper);
     }
   };
 
@@ -1042,11 +1042,11 @@ class Keeper extends Component {
   };
 
   onAddJob = () => {
-    this.props.history.push("/keep3r/job");
+    this.props.history.push("/relay3r/job");
   };
 
   navJob = (address) => {
-    this.props.history.push("/keep3r/job/" + address);
+    this.props.history.push("/relay3r/job/" + address);
   };
 }
 
