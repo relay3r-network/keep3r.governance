@@ -671,7 +671,7 @@ class Keeper extends Component {
 
     if(keeperAsset.isActive && keeperAsset.pendingBonds === 0) {
       return null
-    } else if(parseInt(keeperAsset.bondings) > 0 && moment(keeperAsset.bondings*1000).valueOf() < moment().valueOf()) {
+    } else if(parseInt(keeperAsset.bondings) - parseInt(keeperAsset.bondingDelay) > 0 && moment(keeperAsset.bondings*1000).valueOf() < moment().valueOf()) {
       return (
         <div className={ classes.valueContainer }>
           <Typography variant='h4' className={ classes.valueTitle }>Activate</Typography>
@@ -685,7 +685,7 @@ class Keeper extends Component {
           </Button>
         </div>
       )
-    } else if (keeperAsset.bondings > 0) {
+    } else if (parseInt(keeperAsset.bondings) - parseInt(keeperAsset.bondingDelay) > 0) {
       return (
         <div className={ classes.valueContainer }>
           <Typography variant='h4' className={ classes.valueTitle }>Activatable at</Typography>
@@ -703,7 +703,7 @@ class Keeper extends Component {
       keeperAsset,
     } = this.state
 
-    if(parseInt(keeperAsset.unbondings) > 0) {
+    if(parseInt(keeperAsset.unbondings) - parseInt(keeperAsset.unbondingDelay) > 0) {
       return (
         <div className={ classes.valueContainer }>
           <Typography variant='h4' className={ classes.valueTitle }>Unbonds pending</Typography>
@@ -726,7 +726,7 @@ class Keeper extends Component {
       loading
     } = this.state
 
-    if(parseInt(keeperAsset.unbondings) > 0 && moment(keeperAsset.unbondings*1000).valueOf() < moment().valueOf()) {
+    if((parseInt(keeperAsset.unbondings) - parseInt(keeperAsset.unbondingDelay)) > 0 && moment(keeperAsset.unbondings*1000).valueOf() < moment().valueOf()) {
       return (
         <div>
           <div className={ classes.inputContainer }>
@@ -770,7 +770,7 @@ class Keeper extends Component {
           </div>
         </div>
       )
-    } else if (keeperAsset.unbondings > 0) {
+    } else if ((parseInt(keeperAsset.unbondings) - parseInt(keeperAsset.unbondingDelay) ) >0) {
       return (
         <div className={ classes.valueContainer }>
           <Typography variant='h4' className={ classes.valueTitle }>Withdrawable at</Typography>

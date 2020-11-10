@@ -156,7 +156,9 @@ class Store {
         bonds: 0,
         pendingBonds: 0,
         bondings: 0,
+        bondingDelay:0,
         unbondings: 0,
+        unbondingDelay:0,
         blacklisted: false,
         disputed: false,
         lastJob: 0,
@@ -1065,7 +1067,12 @@ class Store {
       keeperAsset.partialUnbonding = partialUnbonding
 
       keeperAsset.bondings = await keeperContract.methods.bondings(address, keeperAsset.address).call({ })
+      keeperAsset.bondingDelay = await keeperContract.methods.BOND().call()
+      keeperAsset.bondings = (parseInt(keeperAsset.bondings)  + parseInt(keeperAsset.bondingDelay)).toString()
+
       keeperAsset.unbondings = await keeperContract.methods.unbondings(address, keeperAsset.address).call({ })
+      keeperAsset.unbondingDelay = await keeperContract.methods.UNBOND().call()
+      keeperAsset.unbondings = (parseInt(keeperAsset.unbondings)  + parseInt(keeperAsset.unbondingDelay)).toString()
 
       keeperAsset.blacklisted = await keeperContract.methods.blacklist(address).call({ })
       keeperAsset.disputed = await keeperContract.methods.disputes(address).call({ })
