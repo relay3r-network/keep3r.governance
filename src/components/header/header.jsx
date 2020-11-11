@@ -299,8 +299,8 @@ class Header extends Component {
             <Typography variant={ 'h3'} className={ classes.name } onClick={ () => { this.nav('') } }>relay3r.network</Typography>
           </div>
           <div className={ classes.links }>
-            { this.renderLink('relay3r') }
-            { this.renderLink('governance') }
+            {/* { this.renderLink('relay3r') } */}
+            {/* { this.renderLink('governance') } */}
           </div>
           <div className={ classes.account }>
             { !account.address &&
