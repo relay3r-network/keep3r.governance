@@ -420,7 +420,7 @@ class Keeper extends Component {
               {onBondRemove && this.renderBondRemove()}
             </div>
             { this.renderPendingBonds() }
-            { this.renderActivateBonds() }
+            { this.renderActivateBonds(loading) }
             { this.renderPendingUnbonds() }
             { this.renderWithdrawBonds() }
             { this.renderWorkCompleted() }
@@ -649,7 +649,7 @@ class Keeper extends Component {
 
     if(keeperAsset.isActive && keeperAsset.pendingBonds === 0) {
       return null
-    } else if(parseInt(keeperAsset.bondings) > 0) {
+    } else if(parseInt(keeperAsset.bondings) - parseInt(keeperAsset.bondingDelay) > 0) {
       return (
         <div className={ classes.valueContainer }>
           <Typography variant='h4' className={ classes.valueTitle }>Bonds pending</Typography>
@@ -663,7 +663,7 @@ class Keeper extends Component {
     }
   }
 
-  renderActivateBonds = () => {
+  renderActivateBonds = (loading) => {
     const { classes } = this.props
     const {
       keeperAsset,
@@ -680,6 +680,7 @@ class Keeper extends Component {
             size='small'
             color='primary'
             onClick={ this.onActivate }
+            disabled={loading}
           >
             Activate Bonds
           </Button>
