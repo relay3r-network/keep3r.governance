@@ -703,7 +703,7 @@ class Keeper extends Component {
       keeperAsset,
     } = this.state
 
-    if(parseInt(keeperAsset.unbondings) - parseInt(keeperAsset.unbondingDelay) > 0) {
+    if(parseInt(keeperAsset.unbondings) - parseInt(keeperAsset.unbondingDelay) > 0 && keeperAsset.partialUnbonding) {
       return (
         <div className={ classes.valueContainer }>
           <Typography variant='h4' className={ classes.valueTitle }>Unbonds pending</Typography>
