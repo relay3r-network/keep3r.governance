@@ -726,7 +726,7 @@ class Keeper extends Component {
       loading
     } = this.state
 
-    if((parseInt(keeperAsset.unbondings) - parseInt(keeperAsset.unbondingDelay)) > 0 && moment(keeperAsset.unbondings*1000).valueOf() < moment().valueOf()) {
+    if((parseInt(keeperAsset.unbondings) - parseInt(keeperAsset.unbondingDelay)) > 0 && moment(keeperAsset.unbondings*1000).valueOf() < moment().valueOf() && keeperAsset.partialUnbonding) {
       return (
         <div>
           <div className={ classes.valueActionButtons }>
