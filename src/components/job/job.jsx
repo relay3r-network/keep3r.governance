@@ -6,11 +6,14 @@ import {
   Typography,
   Button,
   TextField,
-  InputAdornment
+  InputAdornment,
+  Tooltip,
+  Fab
 } from '@material-ui/core';
 
 import CloseIcon from '@material-ui/icons/Close';
 import ThumbUpIcon from '@material-ui/icons/ThumbUp';
+import KeyboardBackspaceIcon from '@material-ui/icons/KeyboardBackspace';
 
 import Store from "../../stores";
 import { colors } from '../../theme'
@@ -354,14 +357,18 @@ class Job extends Component {
       <div className={ classes.root }>
         <div className={ classes.intro }>
           <div className={ classes.topButton }>
-            <Button
-              variant="outlined"
-              color="secondary"
-              disabled={ loading }
-              onClick={ () => {  this.props.history.push('/relay3r') } }
-            >
-              <Typography variant={ 'h4'}>Back</Typography>
-            </Button>
+            <Tooltip title="Back" aria-label="add">
+                  <Fab
+                    color="primary"
+                    size="medium"
+                    disabled={ loading }
+                    color="secondary"
+                    onClick={ () => {  this.props.history.push('/relay3r') } }
+                    aria-label="Back"
+                  >
+                    <KeyboardBackspaceIcon />
+                  </Fab>
+              </Tooltip>
           </div>
           <div></div>
           <div className={ classes.topButton }>
