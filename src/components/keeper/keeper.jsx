@@ -749,7 +749,7 @@ class Keeper extends Component {
           </div>
         </div>
       )
-    } else if ((parseInt(keeperAsset.unbondings) - parseInt(keeperAsset.unbondingDelay) ) >0) {
+    } else if ((parseInt(keeperAsset.unbondings) - parseInt(keeperAsset.unbondingDelay) ) >0 && keeperAsset.partialUnbonding) {
       return (
         <div className={ classes.valueContainer }>
           <Typography variant='h4' className={ classes.valueTitle }>Withdrawable at</Typography>
