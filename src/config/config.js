@@ -14,6 +14,8 @@ const config = {
   keeperAddress: '0xf771733a465441437EcF64FF410e261516c7c5F3',
   jobRegistryAddress: '0x22Dcdf0196227f6890C9736e7BE0126Bee83751a',
 
+  swapAddress : '0x9BA7df487877A7E216856FBEeD93CE5920722cCa'
+
 };
 
 export default config;
