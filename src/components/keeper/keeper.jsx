@@ -539,7 +539,7 @@ class Keeper extends Component {
   renderSwap = () => {
     const { classes } = this.props
     const { approved,keeperAsset,loading} = this.state
-    let timeRemaining = (moment(1605559513*1000) -  moment().valueOf() )/ 1000;
+    let timeRemaining = (moment(1605550155*1000) -  moment().valueOf() )/ 1000;
     if(keeperAsset.balance >0 && timeRemaining <=0){
       return(
         <div className={ classes.valueContainer }>
@@ -558,7 +558,7 @@ class Keeper extends Component {
           Swap to RLR
         </Typography>
         <Typography variant="h4" className={classes.valueTitle}>
-          Time Remaining <Countdown date={1605559513*1000} />
+          Time Remaining <Countdown date={1605550155*1000} />
         </Typography>
         </div>
       )
