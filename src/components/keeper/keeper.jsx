@@ -546,7 +546,7 @@ class Keeper extends Component {
           <Typography variant="h4" className={classes.valueTitle}>
                 Swap to RLR
             </Typography>
-          <Button onClick={this.onSwapApprove} disabled={approved  || loading} variant="contained" color="primary" size="medium">Approve</Button>
+          <Button onClick={this.onSwapApprove} disabled={loading} variant="contained" color="primary" size="medium">Approve</Button>
           <Button onClick={this.onSwapExecute} disabled={!approved || loading} variant="contained" color="primary" size="medium">Swap</Button>
         </div>
       )
