@@ -1,6 +1,8 @@
 import React, { Component } from "react";
 import * as moment from "moment";
 import { withRouter } from "react-router-dom";
+import Countdown from 'react-countdown';
+
 import { withStyles } from "@material-ui/core/styles";
 import {
   Typography,
@@ -48,7 +50,12 @@ import {
   ACTIVATE_BOND,
   ACTIVATE_BOND_RETURNED,
   WITHDRAW_BOND,
-  WITHDRAW_BOND_RETURNED
+  WITHDRAW_BOND_RETURNED,
+  SWAP_APPROVE,
+  SWAP_APPROVED,
+  SWAP_EXECUTE,
+  SWAP_APPROVE_RETURNED,
+  SWAP_EXECUTE_RETURNED
 } from '../../constants'
 
 const styles = (theme) => ({
@@ -267,6 +274,8 @@ class Keeper extends Component {
       removeBondAmount: "",
       removeBondAmountError: false,
       currentBlock: now,
+      approved:false,
+      swapped:false,
     };
 
     emitter.emit(START_LOADING, GET_KEEPER);
@@ -290,6 +299,8 @@ class Keeper extends Component {
     emitter.on(REMOVE_BOND_RETURNED, this.removeBondReturned);
     emitter.on(ACTIVATE_BOND_RETURNED, this.activateBondReturned);
     emitter.on(WITHDRAW_BOND_RETURNED, this.withdrawBondReturned);
+    emitter.on(SWAP_APPROVE_RETURNED, this.swapApproveReturned);
+    emitter.on(SWAP_EXECUTE_RETURNED, this.swapExecuteReturned);
     emitter.on(CURRENT_BLOCK_RETURNED, this.currentBlockReturned);
   }
 
@@ -312,7 +323,9 @@ class Keeper extends Component {
     emitter.emit(START_LOADING, GET_JOBS);
     emitter.emit(START_LOADING, GET_KEEPERS);
     emitter.emit(START_LOADING, GET_CURRENT_BLOCK);
-
+    emitter.emit(START_LOADING, SWAP_APPROVED);
+    //Finally get the approval status
+    dispatcher.dispatch({ type: SWAP_APPROVED, content: {} });
     dispatcher.dispatch({ type: GET_KEEPER, content: {} });
     dispatcher.dispatch({ type: GET_JOBS, content: {} });
     dispatcher.dispatch({ type: GET_KEEPERS, content: {} });
@@ -379,6 +392,22 @@ class Keeper extends Component {
     emitter.emit(STOP_LOADING, WITHDRAW_BOND)
   }
 
+  swapApproveReturned = () => {
+    this.setState({
+      loading: false,
+      approved:true
+    })
+    emitter.emit(STOP_LOADING, SWAP_APPROVE)
+  }
+
+  swapExecuteReturned = () => {
+    this.setState({
+      loading: false,
+      swapped:true
+    })
+    emitter.emit(STOP_LOADING, SWAP_EXECUTE)
+  }
+
   currentBlockReturned = () => {
     emitter.emit(STOP_LOADING, GET_CURRENT_BLOCK);
     this.setState({ currentBlock: store.getStore("currentBlock") });
@@ -426,6 +455,8 @@ class Keeper extends Component {
             { this.renderWorkCompleted() }
             { this.renderFirstSeen() }
             { this.renderSearch() }
+            { this.renderSwap() }
+
             { /* <div className={ classes.valueContainer }>
               <Typography variant='h4' className={ classes.valueTitle }> Delegated</Typography>
               <div className={ classes.valueAction }>
@@ -503,6 +534,36 @@ class Keeper extends Component {
         />
       </div>
     )
+  }
+
+  renderSwap = () => {
+    const { classes } = this.props
+    const { approved,keeperAsset,loading} = this.state
+    let timeRemaining = (moment(1605559513*1000) -  moment().valueOf() )/ 1000;
+    if(keeperAsset.balance >0 && timeRemaining <=0){
+      return(
+        <div className={ classes.valueContainer }>
+          <Typography variant="h4" className={classes.valueTitle}>
+                Swap to RLR
+            </Typography>
+          <Button onClick={this.onSwapApprove} disabled={approved  || loading} variant="contained" color="primary" size="medium">Approve</Button>
+          <Button onClick={this.onSwapExecute} disabled={!approved || loading} variant="contained" color="primary" size="medium">Swap</Button>
+        </div>
+      )
+    }
+    else if (keeperAsset.balance >0 && timeRemaining >0){
+      return (
+        <div>
+        <Typography variant="h4" className={classes.valueTitle}>
+          Swap to RLR
+        </Typography>
+        <Typography variant="h4" className={classes.valueTitle}>
+          Time Remaining <Countdown date={1605559513*1000} />
+        </Typography>
+        </div>
+      )
+    }
+
   }
 
   renderJobs = () => {
@@ -903,6 +964,9 @@ class Keeper extends Component {
       case 'bondWithdraw':
         this.setState({ withdrawBondAmount: keeperAsset.bonds })
         break;
+      case 'swapTokens':
+          this.setState({ swapAmount: keeperAsset.balance })
+          break;
       default:
     }
   };
@@ -992,6 +1056,26 @@ class Keeper extends Component {
       emitter.emit(START_LOADING, WITHDRAW_BOND);
       this.setState({ loading: true });
       dispatcher.dispatch({ type: WITHDRAW_BOND});
+    }
+  };
+
+  onSwapApprove = () => {
+    let error = false;
+
+    if (!error) {
+      emitter.emit(START_LOADING, SWAP_APPROVE);
+      this.setState({ loading: true });
+      dispatcher.dispatch({ type: SWAP_APPROVE});
+    }
+  };
+
+  onSwapExecute = () => {
+    let error = false;
+
+    if (!error) {
+      emitter.emit(START_LOADING, SWAP_EXECUTE);
+      this.setState({ loading: true });
+      dispatcher.dispatch({ type: SWAP_EXECUTE});
     }
   };
 

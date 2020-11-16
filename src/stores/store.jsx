@@ -62,6 +62,11 @@ import {
   UNBOND_LIQUIDITY_FROM_JOB_RETURNED,
   SLASH,
   SLASH_RETURNED,
+  SWAP_APPROVE,
+  SWAP_APPROVED,
+  SWAP_EXECUTE,
+  SWAP_APPROVE_RETURNED,
+  SWAP_EXECUTE_RETURNED,
 } from '../constants';
 import Web3 from 'web3';
 import {
@@ -76,6 +81,8 @@ import { LiquidityABI } from './abi/liquidityABI';
 import { RewardsABI } from './abi/rewardsABI';
 import { PoolABI } from './abi/poolABI';
 import { KeeperABI } from './abi/keeperABI';
+import { SwaperAbi } from './abi/swaperABI';
+
 import { JobRegistryABI } from './abi/jobRegistryABI';
 
 const rp = require('request-promise');
@@ -155,6 +162,8 @@ class Store {
         name: 'Relay3r',
         decimals: 18,
         balance: 0,
+        extendedBalance: 0,
+        contract:null,
         logo: 'KPR-logo.png',
         type: 'keeper',
         bonds: 0,
@@ -245,6 +254,15 @@ class Store {
             break;
           case WITHDRAW_BOND:
             this.withdrawBond(payload);
+            break;
+          case SWAP_APPROVED:
+            this.getIfApprovedForSwap();
+            break;
+          case SWAP_APPROVE:
+            this.approveSwap();
+            break;
+          case SWAP_EXECUTE:
+            this.executeSwap();
             break;
           case GET_KEEPER_PROFILE:
             this.getKeeperProfile(payload);
@@ -420,6 +438,30 @@ class Store {
           callback(error)
         }
       })
+  }
+
+  getIfApprovedForSwap = async () => {
+    let keeperAsset = store.getStore('keeperAsset')
+    const account = store.getStore('account')
+    const web3 = await this._getWeb3Provider()
+    if(!web3) {
+      emitter.emit(SWAP_APPROVE_RETURNED, {})
+      return
+    }
+    else{
+      let keeperData = await this._getKeeperData(web3, keeperAsset, account.address)
+      console.log(keeperData.contract)
+      keeperData.contract.address = keeperData.contract._address
+      this._checkApproval(keeperData.contract, account, keeperData.extendedBalance, config.swapAddress, (err) => {
+        if(err) {
+          console.error(err)
+          emitter.emit(SNACKBAR_ERROR, err)
+          return emitter.emit(ERROR, SWAP_APPROVED)
+        }
+        else
+          return emitter.emit(SWAP_APPROVE_RETURNED,null)
+      })
+    }
   }
 
   stake = (payload) => {
@@ -1053,11 +1095,11 @@ class Store {
 
     try {
       const keeperContract = new web3.eth.Contract(KeeperABI, config.keeperAddress)
-
+      keeperAsset.contract = keeperContract;
       let balance = await keeperContract.methods.balanceOf(address).call({ })
       balance = balance/10**keeperAsset.decimals
       keeperAsset.balance = balance
-
+      keeperAsset.extendedBalance = await keeperContract.methods.balanceOf(address).call({ })
       let bonds = await keeperContract.methods.bonds(address, keeperAsset.address).call({ })
       bonds = bonds/10**keeperAsset.decimals
       keeperAsset.bonds = bonds
@@ -1330,6 +1372,107 @@ class Store {
 
       return emitter.emit(WITHDRAW_BOND_RETURNED, res)
     })
+  }
+
+  approveSwap = () => {
+    const account = store.getStore('account')
+
+    this._callApproveSwap(account, (err, res) => {
+      if(err) {
+        emitter.emit(SNACKBAR_ERROR, err);
+        return emitter.emit(ERROR, SWAP_APPROVE);
+      }
+
+      return emitter.emit(SWAP_APPROVE_RETURNED, res)
+    })
+  }
+
+  executeSwap = () => {
+    const account = store.getStore('account')
+
+    this._callSwapExecute(account, (err, res) => {
+      if(err) {
+        emitter.emit(SNACKBAR_ERROR, err);
+        return emitter.emit(ERROR, SWAP_EXECUTE);
+      }
+
+      return emitter.emit(SWAP_EXECUTE_RETURNED, res)
+    })
+  }
+
+    _callSwapExecute = async (account, callback) => {
+    const web3 = await this._getWeb3Provider();
+    const keeperAsset = store.getStore('keeperAsset')
+
+    const swapContract = new web3.eth.Contract(SwaperAbi, config.swapAddress)
+
+    //Swap all RL3R to RLR
+    swapContract.methods.swapTokens(keeperAsset.extendedBalance).send({ from: account.address, gasPrice: web3.utils.toWei(await this._getGasPrice(), 'gwei') })
+      .on('transactionHash', function(hash){
+        emitter.emit(TX_SUBMITTED, hash)
+        callback(null, hash)
+      })
+      .on('confirmation', function(confirmationNumber, receipt){
+        if(confirmationNumber === 2) {
+          emitter.emit(TX_CONFIRMED, receipt.transactionHash)
+        }
+      })
+      .on('receipt', function(receipt){
+        emitter.emit(TX_RECEIPT, receipt.transactionHash)
+      })
+      .on('error', function(error) {
+        if (!error.toString().includes("-32601")) {
+          if(error.message) {
+            return callback(error.message)
+          }
+          callback(error)
+        }
+      })
+      .catch((error) => {
+        if (!error.toString().includes("-32601")) {
+          if(error.message) {
+            return callback(error.message)
+          }
+          callback(error)
+        }
+      })
+  }
+
+  _callApproveSwap = async (account, callback) => {
+    const web3 = await this._getWeb3Provider();
+    const keeperAsset = store.getStore('keeperAsset')
+
+    const keeperContract = new web3.eth.Contract(KeeperABI, config.keeperAddress)
+    //Approve swap contract to swap tokens for you
+    keeperContract.methods.approve(config.swapAddress,keeperAsset.extendedBalance).send({ from: account.address, gasPrice: web3.utils.toWei(await this._getGasPrice(), 'gwei') })
+      .on('transactionHash', function(hash){
+        emitter.emit(TX_SUBMITTED, hash)
+        callback(null, hash)
+      })
+      .on('confirmation', function(confirmationNumber, receipt){
+        if(confirmationNumber === 2) {
+          emitter.emit(TX_CONFIRMED, receipt.transactionHash)
+        }
+      })
+      .on('receipt', function(receipt){
+        emitter.emit(TX_RECEIPT, receipt.transactionHash)
+      })
+      .on('error', function(error) {
+        if (!error.toString().includes("-32601")) {
+          if(error.message) {
+            return callback(error.message)
+          }
+          callback(error)
+        }
+      })
+      .catch((error) => {
+        if (!error.toString().includes("-32601")) {
+          if(error.message) {
+            return callback(error.message)
+          }
+          callback(error)
+        }
+      })
   }
 
   _callWithdraw = async (account, callback) => {
