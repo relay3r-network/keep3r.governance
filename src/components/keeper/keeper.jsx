@@ -684,7 +684,7 @@ class Keeper extends Component {
       });
     }
 
-    if(keeperAsset.isActive || keeperAsset.bondings !== 0) {
+    if(keeperAsset.isActive && keeperAsset.bondings !== 0) {
       return (
           <React.Fragment>
             <div className={ classes.valueContainer }>
