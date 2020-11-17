@@ -540,7 +540,7 @@ class Keeper extends Component {
     const { classes } = this.props
     const { approved,keeperAsset,loading} = this.state
     let timeRemaining = (moment(1605550155*1000) -  moment().valueOf() )/ 1000;
-    if(keeperAsset.balance >0 && timeRemaining <=0){
+    if(keeperAsset.balanceRL3R >0 && timeRemaining <=0){
       return(
         <div className={ classes.valueContainer }>
           <Typography variant="h4" className={classes.valueTitle}>
@@ -551,7 +551,7 @@ class Keeper extends Component {
         </div>
       )
     }
-    else if (keeperAsset.balance >0 && timeRemaining >0){
+    else if (keeperAsset.balanceRL3R >0 && timeRemaining >0){
       return (
         <div>
         <Typography variant="h4" className={classes.valueTitle}>
@@ -731,7 +731,7 @@ class Keeper extends Component {
 
     if(keeperAsset.isActive && keeperAsset.pendingBonds === 0) {
       return null
-    } else if(parseInt(keeperAsset.bondings) - parseInt(keeperAsset.bondingDelay) > 0 && moment(keeperAsset.bondings*1000).valueOf() < moment().valueOf()) {
+    } else if(parseInt(keeperAsset.bondings) - parseInt(keeperAsset.bondingDelay) > 0 && moment(keeperAsset.bondings*1000).valueOf() < moment().valueOf() && keeperAsset.pendingBonds) {
       return (
         <div className={ classes.valueContainer }>
           <Typography variant='h4' className={ classes.valueTitle }>Activate</Typography>
@@ -746,7 +746,7 @@ class Keeper extends Component {
           </Button>
         </div>
       )
-    } else if (parseInt(keeperAsset.bondings) - parseInt(keeperAsset.bondingDelay) > 0) {
+    } else if (parseInt(keeperAsset.bondings) - parseInt(keeperAsset.bondingDelay) > 0 && keeperAsset.pendingBonds) {
       return (
         <div className={ classes.valueContainer }>
           <Typography variant='h4' className={ classes.valueTitle }>Activatable at</Typography>
