@@ -683,8 +683,7 @@ class Keeper extends Component {
         transferTo: value,
       });
     }
-
-    if(keeperAsset.isActive && keeperAsset.bondings !== 0) {
+    if(keeperAsset.isActive && ((parseInt(keeperAsset.bondings) - parseInt(keeperAsset.bondingDelay))* 1000 > moment.valueOf())) {
       return (
           <React.Fragment>
             <div className={ classes.valueContainer }>

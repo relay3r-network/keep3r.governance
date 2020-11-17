@@ -290,17 +290,17 @@ class Header extends Component {
       <div className={ classes.root }>
         <div className={ classes.headerV2 }>
           <div className={ classes.icon }>
-            {/* <img
+            <img
               alt=""
               src={ require('../../assets/logo.svg') }
               height={ '37px' }
               onClick={ () => { this.nav('') } }
-            /> */}
+            />
             <Typography variant={ 'h3'} className={ classes.name } onClick={ () => { this.nav('') } }>relay3r.network</Typography>
           </div>
           <div className={ classes.links }>
-            {/* { this.renderLink('relay3r') } */}
-            {/* { this.renderLink('governance') } */}
+            { this.renderLink('relay3r') }
+            { this.renderLink('governance') }
           </div>
           <div className={ classes.account }>
             { !account.address &&
