@@ -291,6 +291,12 @@ export const KeeperABI = [
       {
         indexed: true,
         internalType: "address",
+        name: "bonding",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "address",
         name: "spender",
         type: "address",
       },
@@ -422,6 +428,12 @@ export const KeeperABI = [
         indexed: false,
         internalType: "uint256",
         name: "block",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "amount",
         type: "uint256",
       },
     ],
@@ -934,7 +946,7 @@ export const KeeperABI = [
     type: "function",
   },
   {
-    inputs: [{ internalType: "address", name: "job", type: "address" }],
+    inputs: [{ internalType: "address", name: "", type: "address" }],
     name: "jobProposalDelay",
     outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
     stateMutability: "view",
@@ -957,6 +969,7 @@ export const KeeperABI = [
   {
     inputs: [
       { internalType: "address", name: "spender", type: "address" },
+      { internalType: "address", name: "bonding", type: "address" },
       { internalType: "bool", name: "fAllow", type: "bool" },
     ],
     name: "keeperrightapprove",
