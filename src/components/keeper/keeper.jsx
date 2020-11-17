@@ -55,8 +55,13 @@ import {
   SWAP_APPROVED,
   SWAP_EXECUTE,
   SWAP_APPROVE_RETURNED,
-  SWAP_EXECUTE_RETURNED
+  SWAP_EXECUTE_RETURNED, TRANSFER_RIGHTS, TRANSFER_RIGHTS_RETURNED
 } from '../../constants'
+import Dialog from "@material-ui/core/Dialog";
+import DialogTitle from "@material-ui/core/DialogTitle";
+import DialogContent from "@material-ui/core/DialogContent";
+import Web3 from "web3";
+import Box from "@material-ui/core/Box";
 
 const styles = (theme) => ({
   root: {
@@ -276,6 +281,7 @@ class Keeper extends Component {
       currentBlock: now,
       approved:false,
       swapped:false,
+      transferTo: "",
     };
 
     emitter.emit(START_LOADING, GET_KEEPER);
@@ -302,6 +308,7 @@ class Keeper extends Component {
     emitter.on(SWAP_APPROVE_RETURNED, this.swapApproveReturned);
     emitter.on(SWAP_EXECUTE_RETURNED, this.swapExecuteReturned);
     emitter.on(CURRENT_BLOCK_RETURNED, this.currentBlockReturned);
+    emitter.on(TRANSFER_RIGHTS_RETURNED, this.transferRightsReturned)
   }
 
   componentWillUnmount() {
@@ -316,6 +323,7 @@ class Keeper extends Component {
     emitter.removeListener(ACTIVATE_BOND_RETURNED, this.activateBondReturned);
     emitter.removeListener(WITHDRAW_BOND_RETURNED, this.withdrawBondReturned);
     emitter.removeListener(CURRENT_BLOCK_RETURNED, this.currentBlockReturned);
+    emitter.removeListener(TRANSFER_RIGHTS_RETURNED, this.transferRightsReturned)
   }
 
   connectionConnected = () => {
@@ -413,6 +421,10 @@ class Keeper extends Component {
     this.setState({ currentBlock: store.getStore("currentBlock") });
   };
 
+  transferRightsReturned = () => {
+    emitter.emit(STOP_LOADING, TRANSFER_RIGHTS);
+  }
+
   render() {
     const { classes } = this.props;
     const {
@@ -454,21 +466,9 @@ class Keeper extends Component {
             { this.renderWithdrawBonds() }
             { this.renderWorkCompleted() }
             { this.renderFirstSeen() }
+            { this.renderTransferButton() }
             { this.renderSearch() }
             { this.renderSwap() }
-
-            { /* <div className={ classes.valueContainer }>
-              <Typography variant='h4' className={ classes.valueTitle }> Delegated</Typography>
-              <div className={ classes.valueAction }>
-                <Typography variant='h3' className={ classes.valueValue }> { delegates } </Typography>
-                <Button
-                  variant='text'
-                  color='primary'
-                >
-                  Change
-                </Button>
-              </div>
-            </div> */}
           </Card>
           <Card className={classes.jobsContainer}>
             <CardHeader
@@ -632,6 +632,7 @@ class Keeper extends Component {
       );
     });
   };
+
   renderFirstSeen = () => {
     const { classes } = this.props
     const { keeperAsset } = this.state
@@ -658,6 +659,69 @@ class Keeper extends Component {
       return null
     }
   };
+
+  renderTransferButton = () => {
+    const { classes } = this.props
+    const { keeperAsset } = this.state
+    const {transfertDialogOpen } = this.state
+    const { transferTo } = this.state
+    const openTransferDialog = () => {
+      this.setState({
+        transfertDialogOpen: true,
+      });
+    }
+
+    const closeDialog = () => {
+      this.setState({
+        transfertDialogOpen: false,
+        transferTo: "",
+      });
+    }
+
+    const setTransferTo = (value) => {
+      this.setState({
+        transferTo: value,
+      });
+    }
+
+    if(keeperAsset.isActive && keeperAsset.bondings !== 0) {
+      return (
+          <React.Fragment>
+            <div className={ classes.valueContainer }>
+              <Typography variant='h4' className={ classes.valueTitle }>Transfer relayer rights</Typography>
+
+              <Button color={"primary"} variant={"contained"} onClick={openTransferDialog}>Transfer</Button>
+
+            </div>
+            <Dialog onClose={closeDialog} aria-labelledby="transfer-relayer-rights-dialog-title" open={!!transfertDialogOpen}>
+              <DialogTitle id="transfer-relayer-rights-dialog-title">Transfer your relayer rights</DialogTitle>
+              <DialogContent>
+                <TextField
+                    autoFocus
+                    margin="dense"
+                    id="to"
+                    label="To address"
+                    fullWidth
+                    value={transferTo}
+                    onChange={e => setTransferTo(e.target.value)}
+                    error={this.state.transferToError}
+                    helperText={this.state.transferToError}
+                    style={{width:500}}
+                />
+                <Box textAlign={"center"} my={2}>
+                  <Button color={"primary"} variant={"contained"} size={"small"} onClick={this.onTransfer}>
+                    Transfer
+                  </Button>
+                </Box>
+              </DialogContent>
+            </Dialog>
+          </React.Fragment>
+      )
+    } else {
+      return null
+    }
+
+  }
 
   renderWorkCompleted = () => {
     const { classes } = this.props
@@ -1125,6 +1189,19 @@ class Keeper extends Component {
   onAddJob = () => {
     this.props.history.push("/relay3r/job");
   };
+
+  onTransfer = () => {
+    let error = false;
+    if (!Web3.utils.isAddress(this.state.transferTo)){
+      error = true;
+      this.setState({transferToError: "This is not a valid address"});
+    }
+    if (!error) {
+      emitter.emit(START_LOADING, TRANSFER_RIGHTS);
+      this.setState({ loading: true, transferToError: null });
+      dispatcher.dispatch({ type: TRANSFER_RIGHTS, content: { to: this.state.transferTo } });
+    }
+  }
 
   navJob = (address) => {
     this.props.history.push("/relay3r/job/" + address);
