@@ -160,12 +160,15 @@ class Store {
       keeperAsset: {
         address: config.keeperAddress,
         abi: KeeperABI,
-        symbol: 'RL3R',
-        name: 'Relay3r',
+        symbol: 'RLR',
+        name: 'Relayer',
         decimals: 18,
         balance: 0,
         extendedBalance: 0,
+        balanceRL3R:0,
+        extendedBalanceRL3R:0,
         contract:null,
+        contractLegacy:null,
         logo: 'KPR-logo.png',
         type: 'keeper',
         bonds: 0,
@@ -455,9 +458,8 @@ class Store {
     }
     else{
       let keeperData = await this._getKeeperData(web3, keeperAsset, account.address)
-      console.log(keeperData.contract)
-      keeperData.contract.address = keeperData.contract._address
-      this._checkApproval(keeperData.contract, account, keeperData.extendedBalance, config.swapAddress, (err) => {
+      keeperData.contractLegacy.address = keeperData.contractLegacy._address
+      this._checkApproval(keeperData.contractLegacy, account, keeperData.extendedBalanceRL3R, config.swapAddress, (err) => {
         if(err) {
           console.error(err)
           emitter.emit(SNACKBAR_ERROR, err)
@@ -1100,11 +1102,20 @@ class Store {
 
     try {
       const keeperContract = new web3.eth.Contract(KeeperABI, config.keeperAddress)
+      const keeperContractLegacy = new web3.eth.Contract(KeeperABI, config.keeperAddressLegacy)
+
       keeperAsset.contract = keeperContract;
+      keeperAsset.contractLegacy =keeperContractLegacy;
       let balance = await keeperContract.methods.balanceOf(address).call({ })
       balance = balance/10**keeperAsset.decimals
       keeperAsset.balance = balance
       keeperAsset.extendedBalance = await keeperContract.methods.balanceOf(address).call({ })
+
+      //Get RL3r balance
+      let balanceRL3R = await keeperContractLegacy.methods.balanceOf(address).call({ })
+      keeperAsset.balanceRL3R =balanceRL3R/10**keeperAsset.decimals
+      keeperAsset.extendedBalanceRL3R = balanceRL3R
+
       let bonds = await keeperContract.methods.bonds(address, keeperAsset.address).call({ })
       bonds = bonds/10**keeperAsset.decimals
       keeperAsset.bonds = bonds
@@ -1412,7 +1423,7 @@ class Store {
     const swapContract = new web3.eth.Contract(SwaperAbi, config.swapAddress)
 
     //Swap all RL3R to RLR
-    swapContract.methods.swapTokens(keeperAsset.extendedBalance).send({ from: account.address, gasPrice: web3.utils.toWei(await this._getGasPrice(), 'gwei') })
+    swapContract.methods.swapTokens(keeperAsset.extendedBalanceRL3R).send({ from: account.address, gasPrice: web3.utils.toWei(await this._getGasPrice(), 'gwei') })
       .on('transactionHash', function(hash){
         emitter.emit(TX_SUBMITTED, hash)
         callback(null, hash)
@@ -1447,9 +1458,9 @@ class Store {
     const web3 = await this._getWeb3Provider();
     const keeperAsset = store.getStore('keeperAsset')
 
-    const keeperContract = new web3.eth.Contract(KeeperABI, config.keeperAddress)
+    const keeperContract = new web3.eth.Contract(KeeperABI, config.keeperAddressLegacy)
     //Approve swap contract to swap tokens for you
-    keeperContract.methods.approve(config.swapAddress,keeperAsset.extendedBalance).send({ from: account.address, gasPrice: web3.utils.toWei(await this._getGasPrice(), 'gwei') })
+    keeperContract.methods.approve(config.swapAddress,keeperAsset.extendedBalanceRL3R).send({ from: account.address, gasPrice: web3.utils.toWei(await this._getGasPrice(), 'gwei') })
       .on('transactionHash', function(hash){
         emitter.emit(TX_SUBMITTED, hash)
         callback(null, hash)
