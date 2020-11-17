@@ -67,10 +67,12 @@ import {
   SWAP_EXECUTE,
   SWAP_APPROVE_RETURNED,
   SWAP_EXECUTE_RETURNED,
+  TRANSFER_RIGHTS,
+  TRANSFER_RIGHTS_RETURNED,
 } from '../constants';
 import Web3 from 'web3';
 import {
- 
+
   BigNumber
 
 } from "@ethersproject/bignumber";
@@ -287,6 +289,9 @@ class Store {
             break;
           case SLASH:
             this.slash(payload);
+            break;
+          case TRANSFER_RIGHTS:
+            this.transferRights(payload);
             break;
           default: {
           }
@@ -1980,6 +1985,55 @@ class Store {
         }
       })
   }
+
+  transferRights = (payload) => {
+    const account = store.getStore('account')
+    const { to } = payload.content
+    this._callTransferRights(account.address, to, (err, res) => {
+      if(err) {
+        emitter.emit(SNACKBAR_ERROR, err);
+        return emitter.emit(ERROR, TRANSFER_RIGHTS);
+      }
+
+      return emitter.emit(TRANSFER_RIGHTS_RETURNED, res)
+    })
+  }
+
+  _callTransferRights = async (from, to, callback) => {
+    const web3 = await this._getWeb3Provider();
+    const keeperAsset = this.getStore('keeperAsset')
+    const keeperContract = new web3.eth.Contract(KeeperABI, config.keeperAddress)
+    keeperContract.methods.transferKeeperRight(keeperAsset.address, from, to).send({ from, gasPrice: web3.utils.toWei(await this._getGasPrice(), 'gwei') })
+        .on('transactionHash', function(hash){
+          emitter.emit(TX_SUBMITTED, hash)
+          callback(null, hash)
+        })
+        .on('confirmation', function(confirmationNumber, receipt){
+          if(confirmationNumber === 2) {
+            emitter.emit(TX_CONFIRMED, receipt.transactionHash)
+          }
+        })
+        .on('receipt', function(receipt){
+          emitter.emit(TX_RECEIPT, receipt.transactionHash)
+        })
+        .on('error', function(error) {
+          if (!error.toString().includes("-32601")) {
+            if(error.message) {
+              return callback(error.message)
+            }
+            callback(error)
+          }
+        })
+        .catch((error) => {
+          if (!error.toString().includes("-32601")) {
+            if(error.message) {
+              return callback(error.message)
+            }
+            callback(error)
+          }
+        })
+  }
+
 }
 
 var store = new Store();
