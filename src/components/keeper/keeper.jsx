@@ -566,10 +566,24 @@ class Keeper extends Component {
 
   }
 
+   removeDuplicates = (originalArray, prop) =>{
+    var newArray = [];
+    var lookupObject  = {};
+
+    for(var i in originalArray) {
+       lookupObject[originalArray[i][prop]] = originalArray[i];
+    }
+
+    for(i in lookupObject) {
+        newArray.push(lookupObject[i]);
+    }
+     return newArray;
+  }
+
   renderJobs = () => {
     const { classes } = this.props;
-    const { jobs, keeperAsset } = this.state;
-
+    var { jobs, keeperAsset } = this.state;
+    jobs = this.removeDuplicates(jobs,"address");
     if (jobs.length === 0) {
       return (
         <div>
