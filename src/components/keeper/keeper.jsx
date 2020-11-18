@@ -614,15 +614,15 @@ class Keeper extends Component {
             secondary={
               <React.Fragment>
                 <div className={classes.totalCredits}>
-                  <Typography variant="h4">
-                    {job.credits ? job.credits.toFixed(2) : "0.00"}{" "}
-                    {keeperAsset ? keeperAsset.symbol : ""}
-                  </Typography>
                   <Typography
                     variant="h4"
                     className={classes.textColorSecondary}
                   >
                     Total Credits
+                  </Typography>
+                  <Typography variant="h4">
+                    {job.credits ? job.credits.toFixed(2) : "0.00"}{" "}
+                    {keeperAsset ? keeperAsset.symbol : ""}
                   </Typography>
                 </div>
               </React.Fragment>

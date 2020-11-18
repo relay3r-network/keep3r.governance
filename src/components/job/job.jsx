@@ -14,7 +14,7 @@ import {
 import CloseIcon from '@material-ui/icons/Close';
 import ThumbUpIcon from '@material-ui/icons/ThumbUp';
 import KeyboardBackspaceIcon from '@material-ui/icons/KeyboardBackspace';
-
+import FileCopyIcon from '@material-ui/icons/FileCopy';
 import Store from "../../stores";
 import { colors } from '../../theme'
 
@@ -136,8 +136,9 @@ const styles = theme => ({
     alignItems: 'center',
   },
   title: {
-    width: '100%',
     cursor: 'pointer',
+    display: 'inline-block',
+    float: 'left',
     '&:hover': {
       textDecoration: 'underline'
     }
@@ -333,6 +334,13 @@ class Job extends Component {
     emitter.emit(STOP_LOADING, UNBOND_LIQUIDITY_FROM_JOB)
   }
 
+  copyAddressToClipboard = (event, address) => {
+    event.stopPropagation();
+    navigator.clipboard.writeText(address).then(() => {
+      //show copied
+    });
+  };
+
   render() {
     const { classes } = this.props;
     const {
@@ -359,7 +367,6 @@ class Job extends Component {
           <div className={ classes.topButton }>
             <Tooltip title="Back" aria-label="add">
                   <Fab
-                    color="primary"
                     size="medium"
                     disabled={ loading }
                     color="secondary"
@@ -378,6 +385,9 @@ class Job extends Component {
           <div className={ classes.titleHeading }>
             <div>
               <Typography variant='h3' className={ classes.title } onClick={ () => { this.navigateEtherscan(job.address) } }>{ (job && job.address) ? job.address : 'N/A' }</Typography>
+              <Tooltip title="Copy job addr" aria-label="jobaddrcopy">
+              <Button size="small" width="5%" height="5%"onClick={(e) => { this.copyAddressToClipboard(e, job.address) } }><FileCopyIcon/></Button>
+              </Tooltip>
               <Typography variant='h4' className={ classes.subTitle }> { (job && job.isJob ? ( job._name ? job._name : 'Job found') : 'Job not available') } </Typography>
             </div>
             <div>
@@ -412,8 +422,8 @@ class Job extends Component {
                 <Typography variant='h4' className={ classes.textColorSecondary }>Job Added</Typography>
               </div>
               <div className={ classes.jobInfo }>
-                <Typography variant='h4'>{ job.credits ? job.credits.toFixed(2) : '0.00' } { keeperAsset ? keeperAsset.symbol : '' }</Typography>
                 <Typography variant='h4' className={ classes.textColorSecondary }>Total Credits</Typography>
+                <Typography variant='h4'>{ job.credits ? job.credits.toFixed(2) : '0.00' } { keeperAsset ? keeperAsset.symbol : '' }</Typography>
               </div>
             </div>
           }
