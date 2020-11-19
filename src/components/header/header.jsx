@@ -2,6 +2,9 @@ import React, { Component } from 'react'
 import { withStyles } from '@material-ui/core/styles';
 import {
   Typography,
+  Paper,
+  Tab,
+  Tabs,
 } from '@material-ui/core';
 import { withRouter } from "react-router-dom";
 import { colors } from '../../theme'
@@ -222,7 +225,12 @@ class Header extends Component {
       currenciesAnchorEl: null,
       accountAnchorEl: null,
       width: window.innerWidth,
+      value:0
     }
+
+    this.handleChange = (event, newValue) => {
+      this.setState({value:newValue});
+    };
   }
 
   componentWillMount() {
@@ -286,6 +294,7 @@ class Header extends Component {
       currenciesAnchorEl,
     } = this.state
 
+  
     return (
       <div className={ classes.root }>
         <div className={ classes.headerV2 }>
@@ -299,8 +308,16 @@ class Header extends Component {
             <Typography variant={ 'h3'} className={ classes.name } onClick={ () => { this.nav('') } }>relay3r.network</Typography>
           </div>
           <div className={ classes.links }>
+          <Tabs
+          value={this.state.value}
+          indicatorColor="primary"
+          textColor="primary"
+          onChange={this.handleChange}
+          aria-label="disabled tabs example"
+          >
             { this.renderLink('relay3r') }
             { this.renderLink('governance') }
+      </Tabs>
           </div>
           <div className={ classes.account }>
             { !account.address &&
@@ -388,14 +405,8 @@ class Header extends Component {
   }
 
   renderLink = (screen) => {
-    const {
-      classes
-    } = this.props;
-
     return (
-      <div className={ (window.location.pathname.includes(screen) || (screen==='relay3r' && window.location.pathname==='/')  )?classes.linkActive:classes.link } onClick={ () => { this.nav(screen) } }>
-        <Typography variant={'h4'} className={ `title` }>{ screen }</Typography>
-      </div>
+      <Tab  onClick={ () => { this.nav(screen) } } label={screen}/>
     )
   }
 
