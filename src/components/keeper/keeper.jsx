@@ -742,8 +742,8 @@ class Keeper extends Component {
 
     return (
       <div className={ classes.valueContainer }>
-        <Typography variant='h4' className={ classes.valueTitle }>Work Completed</Typography>
-        <Typography variant='h3' className={ classes.valueValue }>{ keeperAsset.workCompleted ? keeperAsset.workCompleted.toFixed(4) : '0' }</Typography>
+        <Typography variant='h4' className={ classes.valueTitle }>Work Rewards</Typography>
+        <Typography variant='h3' className={ classes.valueValue }>{ (keeperAsset.workCompleted ? keeperAsset.workCompleted.toFixed(4) : '0') + ` ${keeperAsset.symbol}` }</Typography>
       </div>
     )
 
@@ -757,7 +757,7 @@ class Keeper extends Component {
       <div className={classes.valueActionBonds}>
         <Typography variant="h3" className={classes.valueValue}>
           {" "}
-          {keeperAsset.bonds ? keeperAsset.bonds.toFixed(2) : "0.00"}{" "}
+          {keeperAsset.bonds ? (keeperAsset.bonds - keeperAsset.workCompleted).toFixed(2) : "0.00"}{" "}
           {keeperAsset.symbol}{" "}
         </Typography>
         <Grid container className={classes.grid} spacing={4}>
@@ -969,7 +969,7 @@ class Keeper extends Component {
     return (
       <div>
         <div className={ classes.inputContainer }>
-          <Typography variant='h6' className={ classes.balance } onClick={ () => { this.maxClicked('bondRemove') } }>{ keeperAsset.bonds } { keeperAsset.symbol }</Typography>
+          <Typography variant='h6' className={ classes.balance } onClick={ () => { this.maxClicked('bondRemove') } }>{ (keeperAsset.bonds - keeperAsset.workCompleted).toFixed(2)} { keeperAsset.symbol }</Typography>
           <TextField
             fullwidth
             disabled={loading}
@@ -1028,7 +1028,7 @@ class Keeper extends Component {
         this.setState({ bondAmount: keeperAsset.balance });
         break;
       case "bondRemove":
-        this.setState({ removeBondAmount: keeperAsset.bonds });
+        this.setState({ removeBondAmount: (keeperAsset.bonds - keeperAsset.workCompleted) });
         break;
       case 'bondWithdraw':
         this.setState({ withdrawBondAmount: keeperAsset.bonds })

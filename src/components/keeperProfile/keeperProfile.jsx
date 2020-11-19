@@ -298,7 +298,7 @@ class Keeper extends Component {
           </div>
           <div className={ classes.valueContainer }>
             <Typography variant='h3' className={ classes.title }>{ keeperProfile.workCompleted ? keeperProfile.workCompleted.toFixed(4) : '0' }</Typography>
-            <Typography variant='h4' className={ classes.subTitle }>Work Completed</Typography>
+            <Typography variant='h4' className={ classes.subTitle }>Work Rewards</Typography>
           </div>
           <div className={ classes.valueContainer }>
             <Typography variant='h3' className={ classes.title }>{ keeperProfile.bonds } { keeperProfile.symbol }</Typography>
