@@ -676,7 +676,7 @@ class Keeper extends Component {
 
   renderTransferButton = () => {
     const { classes } = this.props
-    const { keeperAsset } = this.state
+    const { keeperAsset,loading } = this.state
     const {transfertDialogOpen } = this.state
     const { transferTo } = this.state
     const openTransferDialog = () => {
@@ -714,6 +714,7 @@ class Keeper extends Component {
                     margin="dense"
                     id="to"
                     label="To address"
+                    disabled={loading}
                     fullWidth
                     value={transferTo}
                     onChange={e => setTransferTo(e.target.value)}
@@ -722,7 +723,7 @@ class Keeper extends Component {
                     style={{width:500}}
                 />
                 <Box textAlign={"center"} my={2}>
-                  <Button color={"primary"} variant={"contained"} size={"small"} onClick={this.onTransfer}>
+                  <Button color="primary" variant="contained" size="small" disabled={loading} onClick={this.onTransfer}>
                     Transfer
                   </Button>
                 </Box>
