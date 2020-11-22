@@ -18,6 +18,8 @@ import MonetizationOnIcon from '@material-ui/icons/MonetizationOn';
 import ForumIcon from '@material-ui/icons/Forum';
 import BarChartIcon from '@material-ui/icons/BarChart';
 import BuildIcon from '@material-ui/icons/Build';
+import TelegramIcon from '@material-ui/icons/Telegram';
+import TwitterIcon from '@material-ui/icons/Twitter';
 
 import Store from "../../stores";
 const store = Store.store
@@ -80,7 +82,7 @@ const styles = theme => ({
     width: 'fit-content',
   },
   products: {
-    padding: '0px 24px',
+    padding: '0px 22px',
     [theme.breakpoints.down('xs')]: {
       paddingBottom: '24px'
     }
@@ -108,29 +110,30 @@ class Footer extends Component {
 
     return (
       <div className={classes.footer}>
-          <Typography className={ classes.heading } variant={ 'h6'}>Forked from Keep3R</Typography>
-
-        <div className={ classes.products }>
-          <Typography className={ classes.heading } variant={ 'h6'}>Documentation</Typography>
+          <div  className={ classes.link } onClick={()=> window.open("https://t.me/relay3r", "_blank")} >
+            <TelegramIcon className={ classes.icon }/>
+            <Typography variant={ 'h5'} >Telegram</Typography>
+          </div>
+          <div  className={ classes.link } onClick={()=> window.open("https://discord.gg/UAnFfAexQ6", "_blank")} >
+          <img alt="" src={ require('../../assets/discord.svg') } height='24px' className={ classes.icon } />
+          <Typography variant={ 'h5'} >Discord</Typography>
+          </div>
+          <div  className={ classes.link } onClick={()=> window.open("https://twitter.com/RelayerNetwork", "_blank")} >
+          <TwitterIcon className={ classes.icon }/>
+          <Typography variant={ 'h5'} >Twitter</Typography>
+          </div>
           <div  className={ classes.link } onClick={()=> window.open("https://docs.relay3r.network/", "_blank")} >
             <DescriptionIcon height='15px' className={ classes.icon } />
             <Typography variant={ 'h4'} >docs.relay3r.network</Typography>
           </div>
-        </div>
-        <div className={ classes.products }>
-          <Typography className={ classes.heading } variant={ 'h6'}>Github</Typography>
           <div  className={ classes.link } onClick={()=> window.open("https://github.com/relay3r-network", "_blank")} >
             <img alt="" src={ require('../../assets/github.svg') } height='24px' className={ classes.icon } />
             <Typography variant={ 'h4'} >relay3r-network</Typography>
           </div>
-        </div>
-        <div className={ classes.products }>
-          <Typography className={ classes.heading } variant={ 'h6'}>Registry</Typography>
-          <div  className={ classes.link } onClick={()=> window.open("https://docs.relay3r.network/registry", "_blank")} >
+          {/* <div  className={ classes.link } onClick={()=> window.open("https://docs.relay3r.network/registry", "_blank")} >
             <DescriptionIcon height='15px' className={ classes.icon } />
             <Typography variant={ 'h4'} >registry</Typography>
-          </div>
-        </div>
+          </div> */}
       </div>
     )
   }
