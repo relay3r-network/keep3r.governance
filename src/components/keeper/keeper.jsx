@@ -1029,7 +1029,7 @@ class Keeper extends Component {
         this.setState({ bondAmount: keeperAsset.balance });
         break;
       case "bondRemove":
-        this.setState({ removeBondAmount: (keeperAsset.bonds  });
+        this.setState({ removeBondAmount: keeperAsset.bonds});
         break;
       case 'bondWithdraw':
         this.setState({ withdrawBondAmount: keeperAsset.bonds })
