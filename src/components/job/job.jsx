@@ -15,6 +15,7 @@ import CloseIcon from '@material-ui/icons/Close';
 import ThumbUpIcon from '@material-ui/icons/ThumbUp';
 import KeyboardBackspaceIcon from '@material-ui/icons/KeyboardBackspace';
 import FileCopyIcon from '@material-ui/icons/FileCopy';
+import AddCircleOutlineIcon from '@material-ui/icons/AddCircleOutline';
 import Store from "../../stores";
 import { colors } from '../../theme'
 
@@ -38,6 +39,8 @@ import {
   UNBOND_LIQUIDITY_FROM_JOB,
   UNBOND_LIQUIDITY_FROM_JOB_RETURNED
 } from '../../constants'
+import IconButton from "@material-ui/core/IconButton";
+import Box from "@material-ui/core/Box";
 
 const styles = theme => ({
   root: {
@@ -251,7 +254,7 @@ class Job extends Component {
     }
 
     dispatcher.dispatch({ type: GET_JOB_PROFILE, content: { address: jobAddress } })
-    dispatcher.dispatch({ type:GET_BALANCES, content: {} })
+    dispatcher.dispatch({ type: GET_BALANCES, content: {} })
 
     const account = store.getStore('account')
     const keeperAsset = store.getStore('keeperAsset')
@@ -264,7 +267,7 @@ class Job extends Component {
       addLiquidityAmountError: false,
       removeLiquidityAmount: '',
       removeLiquidityAmountError: false,
-      job: {}
+      job: {},
     }
   }
 
@@ -309,7 +312,6 @@ class Job extends Component {
   }
 
   jobProfileReturned = (jobProfile) => {
-    console.log(jobProfile)
     emitter.emit(STOP_LOADING, GET_JOB_PROFILE)
     this.setState({ job: jobProfile })
   }
@@ -341,6 +343,10 @@ class Job extends Component {
     });
   };
 
+  isOwner = () => {
+    return true || this.state.job.owner === this.state.account;
+  }
+
   render() {
     const { classes } = this.props;
     const {
@@ -352,7 +358,7 @@ class Job extends Component {
       removeLiquidityAmount,
       removeLiquidityAmountError,
     } = this.state
-
+    console.log(job);
     let state = 'Inactive'
     let stateClass = classes.stateNeutral
 
@@ -423,12 +429,11 @@ class Job extends Component {
               </div>
               <div className={ classes.jobInfo }>
                 <Typography variant='h4' className={ classes.textColorSecondary }>Total Credits</Typography>
-                <Typography variant='h4'>{ job.credits ? job.credits.toFixed(2) : '0.00' } { keeperAsset ? keeperAsset.symbol : '' }</Typography>
               </div>
             </div>
           }
-          { /*
-            job && job.isJob &&
+          {
+            job && job.isJob && this.isOwner() &&
             <div className={ classes.liquidityContainer }>
               <div className={ classes.field }>
                 <div className={ classes.fieldTitle }>
@@ -514,7 +519,7 @@ class Job extends Component {
                 </div>
               </div>
             </div>
-          */}
+          }
           { /*
             job && job.isJob &&
             <div className={ classes.liquidityContainer }>

@@ -1,91 +1,87 @@
 import config from "../config/config.js";
 import async from 'async';
 import {
-  ERROR,
-  SNACKBAR_ERROR,
-  TX_SUBMITTED,
-  TX_RECEIPT,
-  TX_CONFIRMED,
-  GET_BALANCES,
-  BALANCES_RETURNED,
-  GET_GAS_PRICES,
-  GAS_PRICES_RETURNED,
-  GET_PROPOSALS,
-  GET_PROPOSALS_RETURNED,
-  PROPOSE,
-  PROPOSE_RETURNED,
-  SIGN_ACTION,
-  SIGN_ACTION_RETURNED,
-  CALCULATE_MINT,
-  CALCULATE_MINT_RETURNED,
-  MINT,
-  MINT_RETURNED,
-  STAKE,
-  STAKE_RETURNED,
-  GET_CURRENT_BLOCK,
-  CURRENT_BLOCK_RETURNED,
-  GET_REWARDS_AVAILABLE,
-  REWARDS_AVAILABLE_RETURNED,
-  GET_REWARD,
-  REWARD_RETURNED,
-  VOTE_FOR,
-  VOTE_FOR_RETURNED,
-  VOTE_AGAINST,
-  VOTE_AGAINST_RETURNED,
-  GET_KEEPER,
-  KEEPER_RETURNED,
-  GET_KEEPER_PROFILE,
-  KEEPER_PROFILE_RETURNED,
-  GET_JOBS,
-  JOBS_RETURNED,
-  GET_KEEPERS,
-  KEEPERS_RETURNED,
-  ADD_BOND,
-  ADD_BOND_RETURNED,
-  REMOVE_BOND,
-  REMOVE_BOND_RETURNED,
   ACTIVATE_BOND,
   ACTIVATE_BOND_RETURNED,
-  WITHDRAW_BOND,
-  WITHDRAW_BOND_RETURNED,
+  ADD_BOND,
+  ADD_BOND_RETURNED,
   ADD_JOB,
   ADD_JOB_RETURNED,
-  GET_JOB_PROFILE,
-  JOB_PROFILE_RETURNED,
   ADD_LIQUIDITY_TO_JOB,
   ADD_LIQUIDITY_TO_JOB_RETURNED,
   APPLY_CREDIT_TO_JOB,
   APPLY_CREDIT_TO_JOB_RETURNED,
+  BALANCES_RETURNED,
+  CALCULATE_MINT,
+  CALCULATE_MINT_RETURNED,
+  CURRENT_BLOCK_RETURNED,
+  ERROR,
+  GAS_PRICES_RETURNED,
+  GET_BALANCES,
+  GET_CURRENT_BLOCK,
+  GET_GAS_PRICES,
+  GET_JOB_PROFILE,
+  GET_JOBS,
+  GET_KEEPER,
+  GET_KEEPER_PROFILE,
+  GET_KEEPERS,
+  GET_PROPOSALS,
+  GET_PROPOSALS_RETURNED,
+  GET_REWARD,
+  GET_REWARDS_AVAILABLE,
+  JOB_PROFILE_RETURNED,
+  JOBS_RETURNED,
+  KEEPER_PROFILE_RETURNED,
+  KEEPER_RETURNED,
+  KEEPERS_RETURNED,
+  MINT,
+  MINT_RETURNED,
+  PROPOSE,
+  PROPOSE_RETURNED,
+  REMOVE_BOND,
+  REMOVE_BOND_RETURNED,
   REMOVE_LIQUIDITY_FROM_JOB,
   REMOVE_LIQUIDITY_FROM_JOB_RETURNED,
-  UNBOND_LIQUIDITY_FROM_JOB,
-  UNBOND_LIQUIDITY_FROM_JOB_RETURNED,
+  REWARD_RETURNED,
+  REWARDS_AVAILABLE_RETURNED,
+  SIGN_ACTION,
+  SIGN_ACTION_RETURNED,
   SLASH,
   SLASH_RETURNED,
+  SNACKBAR_ERROR,
+  STAKE,
+  STAKE_RETURNED,
   SWAP_APPROVE,
+  SWAP_APPROVE_RETURNED,
   SWAP_APPROVED,
   SWAP_EXECUTE,
-  SWAP_APPROVE_RETURNED,
   SWAP_EXECUTE_RETURNED,
   TRANSFER_RIGHTS,
   TRANSFER_RIGHTS_RETURNED,
+  TX_CONFIRMED,
+  TX_RECEIPT,
+  TX_SUBMITTED,
+  UNBOND_LIQUIDITY_FROM_JOB,
+  UNBOND_LIQUIDITY_FROM_JOB_RETURNED,
+  VOTE_AGAINST,
+  VOTE_AGAINST_RETURNED,
+  VOTE_FOR,
+  VOTE_FOR_RETURNED,
+  WITHDRAW_BOND,
+  WITHDRAW_BOND_RETURNED,
 } from '../constants';
 import Web3 from 'web3';
-import {
+import {injected} from "./connectors";
+import {ERC20ABI} from "./abi/erc20ABI";
+import {GovernanceABI} from './abi/governanceABI';
+import {LiquidityABI} from './abi/liquidityABI';
+import {RewardsABI} from './abi/rewardsABI';
+import {PoolABI} from './abi/poolABI';
+import {KeeperABI} from './abi/keeperABI';
+import {SwaperAbi} from './abi/swaperABI';
 
-  BigNumber
-
-} from "@ethersproject/bignumber";
-import { injected } from "./connectors";
-import { ERC20ABI } from "./abi/erc20ABI";
-import { GovernanceABI } from './abi/governanceABI';
-import { LiquidityABI } from './abi/liquidityABI';
-import { RewardsABI } from './abi/rewardsABI';
-import { PoolABI } from './abi/poolABI';
-import { KeeperABI } from './abi/keeperABI';
-import { SwaperAbi } from './abi/swaperABI';
-
-import { JobRegistryABI } from './abi/jobRegistryABI';
+import {JobRegistryABI} from './abi/jobRegistryABI';
+import {OwnableABI} from "./abi/ownableABI";
 
 const rp = require('request-promise');
 
@@ -321,7 +317,7 @@ class Store {
     // let poolAsset = store.getStore('poolAsset')
     let keeperAsset = store.getStore('keeperAsset')
 
-    let assets = [baseAsset, liquidityAsset, rewardAsset] // ,poolAsset
+    let assets = [baseAsset, liquidityAsset, rewardAsset, keeperAsset] // ,poolAsset
 
     if(!account || !account.address || !assets) {
       return false
@@ -1691,6 +1687,7 @@ class Store {
     try {
       const keeperContract = new web3.eth.Contract(KeeperABI, config.keeperAddress)
       const jobRegistryContract = new web3.eth.Contract(JobRegistryABI, config.jobRegistryAddress)
+      const jobContract = new web3.eth.Contract(OwnableABI, address)
 
       const isJob = await keeperContract.methods.jobs(address).call({ })
       if(!isJob) {
@@ -1703,9 +1700,9 @@ class Store {
       if(!jobProfile) {
         jobProfile = {}
       }
+      jobProfile.owner = await jobContract.methods.owner().call({ });
 
-      const jobAdded = await jobRegistryContract.methods.jobAdded(address).call({ })
-      jobProfile.jobAdded = jobAdded
+      jobProfile.jobAdded = await jobRegistryContract.methods.jobAdded(address).call({})
 
       let credits = await keeperContract.methods.credits(address, keeperAsset.address).call({ })
       credits = credits/10**keeperAsset.decimals
