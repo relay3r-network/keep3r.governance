@@ -253,7 +253,10 @@ class Job extends Component {
   constructor(props) {
     super()
 
-    let jobAddress = (props && props.match && props.match.params && props.match.params.address) ? props.match.params.address : null
+    this.getJobAddress = () => {
+      return (props && props.match && props.match.params && props.match.params.address) ? props.match.params.address : null
+    }
+    let jobAddress = this.getJobAddress();
 
     if(!jobAddress) {
       props.history.push('/relay3r/')
@@ -273,6 +276,8 @@ class Job extends Component {
       job: {},
       addCreditsOpen: false,
     }
+
+    this.connectionConnected();
   }
 
   componentWillMount() {
@@ -304,8 +309,7 @@ class Job extends Component {
   connectionConnected = () => {
     emitter.emit(START_LOADING, GET_JOB_PROFILE)
 
-    const { props } = this
-    let jobAddress = (props && props.match && props.match.params && props.match.params.address) ? props.match.params.address : null
+    let jobAddress = this.getJobAddress();
 
     dispatcher.dispatch({ type: GET_JOB_PROFILE, content: { address: jobAddress } })
     dispatcher.dispatch({ type: GET_GOVERNANCE_ADDRESS, content: {} })

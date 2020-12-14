@@ -1162,7 +1162,6 @@ class Store {
       currentVotes = currentVotes/10**keeperAsset.decimals
       keeperAsset.currentVotes = currentVotes
 
-      console.log(keeperAsset)
       return keeperAsset
     } catch(ex) {
       console.log(ex)
