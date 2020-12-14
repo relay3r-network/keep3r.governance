@@ -379,7 +379,7 @@ class Job extends Component {
   }
 
   canRefill = () => {
-    return this.state.account.address.toLowerCase() === this.state.governance.toLowerCase();
+    return this.state.account.address === this.state.governance;
   }
 
   isJob = () => {
