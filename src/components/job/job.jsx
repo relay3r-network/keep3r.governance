@@ -277,7 +277,7 @@ class Job extends Component {
       addCreditsOpen: false,
     }
 
-    this.connectionConnected();
+    this.loadData();
   }
 
   componentWillMount() {
@@ -307,6 +307,13 @@ class Job extends Component {
   };
 
   connectionConnected = () => {
+    const account = store.getStore('account')
+    const keeperAsset = store.getStore('keeperAsset')
+    this.setState({account, keeperAsset});
+    this.loadData();
+  }
+
+  loadData = () =>{
     emitter.emit(START_LOADING, GET_JOB_PROFILE)
 
     let jobAddress = this.getJobAddress();
@@ -372,7 +379,7 @@ class Job extends Component {
   }
 
   canRefill = () => {
-    return this.state.account === this.state.governance;
+    return this.state.account.address.toLowerCase() === this.state.governance.toLowerCase();
   }
 
   isJob = () => {
