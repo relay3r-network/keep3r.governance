@@ -5,6 +5,8 @@ import {
   ACTIVATE_BOND_RETURNED,
   ADD_BOND,
   ADD_BOND_RETURNED,
+  ADD_CREDITS,
+  ADD_CREDITS_RETURNED,
   ADD_JOB,
   ADD_JOB_RETURNED,
   ADD_LIQUIDITY_TO_JOB,
@@ -20,6 +22,8 @@ import {
   GET_BALANCES,
   GET_CURRENT_BLOCK,
   GET_GAS_PRICES,
+  GET_GOVERNANCE_ADDRESS,
+  GET_GOVERNANCE_ADDRESS_RETURNED,
   GET_JOB_PROFILE,
   GET_JOBS,
   GET_KEEPER,
@@ -189,7 +193,10 @@ class Store {
       ],
       keepers: [
 
-      ]
+      ],
+      governance: {
+        address: ""
+      }
     }
 
     dispatcher.register(
@@ -291,6 +298,12 @@ class Store {
             break;
           case TRANSFER_RIGHTS:
             this.transferRights(payload);
+            break;
+          case ADD_CREDITS:
+            this.addCredits(payload);
+            break;
+          case GET_GOVERNANCE_ADDRESS:
+            this.getGovernanceAddress(payload)
             break;
           default: {
           }
@@ -597,7 +610,8 @@ class Store {
   }
 
   _getWeb3Provider = async () => {
-    const web3context = store.getStore('web3context')
+
+    const web3context = store.getStore('web3context');
     if(!web3context) {
       return null
     }
@@ -1574,13 +1588,27 @@ class Store {
     })
   }
 
+  getGovernanceAddress = async (payload) => {
+    const governance = store.getStore("governance");
+    if (governance.address){
+      emitter.emit(GET_GOVERNANCE_ADDRESS_RETURNED, governance.address)
+    } else {
+      const address = await this._getGovernanceAddress();
+      if (address){
+        store.setStore({governance: {address}});
+        emitter.emit(GET_GOVERNANCE_ADDRESS_RETURNED, address)
+      } else {
+        emitter.emit(ERROR, GET_GOVERNANCE_ADDRESS);
+      }
+    }
+  }
+
   _getGovernanceAddress = async () => {
     try {
       const web3 = await this._getWeb3Provider();
       const jobRegistryContract = new web3.eth.Contract(JobRegistryABI, config.jobRegistryAddress)
 
-      const address = await jobRegistryContract.methods.governance().call({})
-      return address
+      return await jobRegistryContract.methods.governance().call({})
     } catch(ex) {
       console.log(ex)
       return null
@@ -1701,7 +1729,7 @@ class Store {
         jobProfile = {}
       }
       jobProfile.owner = await jobContract.methods.owner().call({ });
-
+      jobProfile.isLpFunded = false;
       jobProfile.jobAdded = await jobRegistryContract.methods.jobAdded(address).call({})
 
       let credits = await keeperContract.methods.credits(address, keeperAsset.address).call({ })
@@ -2012,6 +2040,56 @@ class Store {
     const keeperAsset = this.getStore('keeperAsset')
     const keeperContract = new web3.eth.Contract(KeeperABI, config.keeperAddress)
     keeperContract.methods.transferKeeperRight(keeperAsset.address, from, to).send({ from, gasPrice: web3.utils.toWei(await this._getGasPrice(), 'gwei') })
+        .on('transactionHash', function(hash){
+          emitter.emit(TX_SUBMITTED, hash)
+          callback(null, hash)
+        })
+        .on('confirmation', function(confirmationNumber, receipt){
+          if(confirmationNumber === 2) {
+            emitter.emit(TX_CONFIRMED, receipt.transactionHash)
+          }
+        })
+        .on('receipt', function(receipt){
+          emitter.emit(TX_RECEIPT, receipt.transactionHash)
+        })
+        .on('error', function(error) {
+          if (!error.toString().includes("-32601")) {
+            if(error.message) {
+              return callback(error.message)
+            }
+            callback(error)
+          }
+        })
+        .catch((error) => {
+          if (!error.toString().includes("-32601")) {
+            if(error.message) {
+              return callback(error.message)
+            }
+            callback(error)
+          }
+        })
+  }
+
+  addCredits = (payload) => {
+    //_getGovernanceAddress()
+    const {address, amount} = payload.content;
+    this._addCredits(address, amount, (err, res) => {
+      if(err) {
+        emitter.emit(SNACKBAR_ERROR, err);
+        return emitter.emit(ERROR, ADD_CREDITS);
+      }
+
+      return emitter.emit(ADD_CREDITS_RETURNED, res);
+    });
+
+  }
+
+  _addCredits = async (address, amount, callback) => {
+    const web3 = await this._getWeb3Provider();
+    const keeperContract = new web3.eth.Contract(KeeperABI, config.keeperAddress);
+    const account = store.getStore('account').address;
+    keeperContract.methods.addCredit(account, address, web3.utils.toWei(amount, 'ether'))
+        .send({ from: account, gasPrice: web3.utils.toWei(await this._getGasPrice(), 'gwei') })
         .on('transactionHash', function(hash){
           emitter.emit(TX_SUBMITTED, hash)
           callback(null, hash)
