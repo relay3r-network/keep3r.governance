@@ -47,6 +47,7 @@ import IconButton from "@material-ui/core/IconButton";
 import Box from "@material-ui/core/Box";
 import KeeperAssetDialog from "./KeeperAssetDialog";
 import JobRefillDialog from "./JobRefillDialog";
+import Web3 from "web3";
 
 const styles = theme => ({
   root: {
@@ -379,7 +380,12 @@ class Job extends Component {
   }
 
   canRefill = () => {
-    return this.state.account.address === this.state.governance;
+    const {address} = this.state.account;
+    const govAddress = this.state.governance;
+    if (address && govAddress){
+      return Web3.utils.toChecksumAddress(address) === Web3.utils.toChecksumAddress(govAddress);
+    }
+    return false;
   }
 
   isJob = () => {
