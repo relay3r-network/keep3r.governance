@@ -2086,6 +2086,7 @@ class Store {
   _addCredits = async (address, amount, callback) => {
     const web3 = await this._getWeb3Provider();
     const keeperContract = new web3.eth.Contract(KeeperABI, config.keeperAddress);
+    const account = store.getStore('account').address;
     const keeperAddress = store.getStore('keeperAsset').address;
     keeperContract.methods.addCredit(keeperAddress, address, web3.utils.toWei(amount, 'ether'))
         .send({ from: account, gasPrice: web3.utils.toWei(await this._getGasPrice(), 'gwei') })
