@@ -540,22 +540,22 @@ class Keeper extends Component {
     const { classes } = this.props
     const { approved,keeperAsset,loading} = this.state
     let timeRemaining = (moment(1605550155*1000) -  moment().valueOf() )/ 1000;
-    if(keeperAsset.balanceRL3R >0 && timeRemaining <=0){
+    if(keeperAsset.balanceRLRV2 >0 && timeRemaining <=0){
       return(
         <div className={ classes.valueContainer }>
           <Typography variant="h4" className={classes.valueTitle}>
-                Swap to RLR
+                Swap to RelayerV3
             </Typography>
           <Button onClick={this.onSwapApprove} disabled={loading} variant="contained" color="primary" size="medium">Approve</Button>
           <Button onClick={this.onSwapExecute} disabled={!approved || loading} variant="contained" color="primary" size="medium">Swap</Button>
         </div>
       )
     }
-    else if (keeperAsset.balanceRL3R >0 && timeRemaining >0){
+    else if (keeperAsset.balanceRLRV2 >0 && timeRemaining >0){
       return (
         <div>
         <Typography variant="h4" className={classes.valueTitle}>
-          Swap to RLR
+          Swap to RelayerV3
         </Typography>
         <Typography variant="h4" className={classes.valueTitle}>
           Time Remaining <Countdown date={1605550155*1000} />
