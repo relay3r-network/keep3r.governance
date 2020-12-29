@@ -1,91 +1,91 @@
 import config from "../config/config.js";
 import async from 'async';
 import {
-  ERROR,
-  SNACKBAR_ERROR,
-  TX_SUBMITTED,
-  TX_RECEIPT,
-  TX_CONFIRMED,
-  GET_BALANCES,
-  BALANCES_RETURNED,
-  GET_GAS_PRICES,
-  GAS_PRICES_RETURNED,
-  GET_PROPOSALS,
-  GET_PROPOSALS_RETURNED,
-  PROPOSE,
-  PROPOSE_RETURNED,
-  SIGN_ACTION,
-  SIGN_ACTION_RETURNED,
-  CALCULATE_MINT,
-  CALCULATE_MINT_RETURNED,
-  MINT,
-  MINT_RETURNED,
-  STAKE,
-  STAKE_RETURNED,
-  GET_CURRENT_BLOCK,
-  CURRENT_BLOCK_RETURNED,
-  GET_REWARDS_AVAILABLE,
-  REWARDS_AVAILABLE_RETURNED,
-  GET_REWARD,
-  REWARD_RETURNED,
-  VOTE_FOR,
-  VOTE_FOR_RETURNED,
-  VOTE_AGAINST,
-  VOTE_AGAINST_RETURNED,
-  GET_KEEPER,
-  KEEPER_RETURNED,
-  GET_KEEPER_PROFILE,
-  KEEPER_PROFILE_RETURNED,
-  GET_JOBS,
-  JOBS_RETURNED,
-  GET_KEEPERS,
-  KEEPERS_RETURNED,
-  ADD_BOND,
-  ADD_BOND_RETURNED,
-  REMOVE_BOND,
-  REMOVE_BOND_RETURNED,
   ACTIVATE_BOND,
   ACTIVATE_BOND_RETURNED,
-  WITHDRAW_BOND,
-  WITHDRAW_BOND_RETURNED,
+  ADD_BOND,
+  ADD_BOND_RETURNED,
+  ADD_CREDITS,
+  ADD_CREDITS_RETURNED,
   ADD_JOB,
   ADD_JOB_RETURNED,
-  GET_JOB_PROFILE,
-  JOB_PROFILE_RETURNED,
   ADD_LIQUIDITY_TO_JOB,
   ADD_LIQUIDITY_TO_JOB_RETURNED,
   APPLY_CREDIT_TO_JOB,
   APPLY_CREDIT_TO_JOB_RETURNED,
+  BALANCES_RETURNED,
+  CALCULATE_MINT,
+  CALCULATE_MINT_RETURNED,
+  CURRENT_BLOCK_RETURNED,
+  ERROR,
+  GAS_PRICES_RETURNED,
+  GET_BALANCES,
+  GET_CURRENT_BLOCK,
+  GET_GAS_PRICES,
+  GET_GOVERNANCE_ADDRESS,
+  GET_GOVERNANCE_ADDRESS_RETURNED,
+  GET_JOB_PROFILE,
+  GET_JOBS,
+  GET_KEEPER,
+  GET_KEEPER_PROFILE,
+  GET_KEEPERS,
+  GET_PROPOSALS,
+  GET_PROPOSALS_RETURNED,
+  GET_REWARD,
+  GET_REWARDS_AVAILABLE,
+  JOB_PROFILE_RETURNED,
+  JOBS_RETURNED,
+  KEEPER_PROFILE_RETURNED,
+  KEEPER_RETURNED,
+  KEEPERS_RETURNED,
+  MINT,
+  MINT_RETURNED,
+  PROPOSE,
+  PROPOSE_RETURNED,
+  REMOVE_BOND,
+  REMOVE_BOND_RETURNED,
   REMOVE_LIQUIDITY_FROM_JOB,
   REMOVE_LIQUIDITY_FROM_JOB_RETURNED,
-  UNBOND_LIQUIDITY_FROM_JOB,
-  UNBOND_LIQUIDITY_FROM_JOB_RETURNED,
+  REWARD_RETURNED,
+  REWARDS_AVAILABLE_RETURNED,
+  SIGN_ACTION,
+  SIGN_ACTION_RETURNED,
   SLASH,
   SLASH_RETURNED,
+  SNACKBAR_ERROR,
+  STAKE,
+  STAKE_RETURNED,
   SWAP_APPROVE,
+  SWAP_APPROVE_RETURNED,
   SWAP_APPROVED,
   SWAP_EXECUTE,
-  SWAP_APPROVE_RETURNED,
   SWAP_EXECUTE_RETURNED,
   TRANSFER_RIGHTS,
   TRANSFER_RIGHTS_RETURNED,
+  TX_CONFIRMED,
+  TX_RECEIPT,
+  TX_SUBMITTED,
+  UNBOND_LIQUIDITY_FROM_JOB,
+  UNBOND_LIQUIDITY_FROM_JOB_RETURNED,
+  VOTE_AGAINST,
+  VOTE_AGAINST_RETURNED,
+  VOTE_FOR,
+  VOTE_FOR_RETURNED,
+  WITHDRAW_BOND,
+  WITHDRAW_BOND_RETURNED,
 } from '../constants';
 import Web3 from 'web3';
-import {
+import {injected} from "./connectors";
+import {ERC20ABI} from "./abi/erc20ABI";
+import {GovernanceABI} from './abi/governanceABI';
+import {LiquidityABI} from './abi/liquidityABI';
+import {RewardsABI} from './abi/rewardsABI';
+import {PoolABI} from './abi/poolABI';
+import {KeeperABI} from './abi/keeperABI';
+import {SwaperAbi} from './abi/swaperABI';
 
-  BigNumber
-
-} from "@ethersproject/bignumber";
-import { injected } from "./connectors";
-import { ERC20ABI } from "./abi/erc20ABI";
-import { GovernanceABI } from './abi/governanceABI';
-import { LiquidityABI } from './abi/liquidityABI';
-import { RewardsABI } from './abi/rewardsABI';
-import { PoolABI } from './abi/poolABI';
-import { KeeperABI } from './abi/keeperABI';
-import { SwaperAbi } from './abi/swaperABI';
-
-import { JobRegistryABI } from './abi/jobRegistryABI';
+import {JobRegistryABI} from './abi/jobRegistryABI';
+import {OwnableABI} from "./abi/ownableABI";
 
 const rp = require('request-promise');
 
@@ -193,7 +193,10 @@ class Store {
       ],
       keepers: [
 
-      ]
+      ],
+      governance: {
+        address: ""
+      }
     }
 
     dispatcher.register(
@@ -296,6 +299,12 @@ class Store {
           case TRANSFER_RIGHTS:
             this.transferRights(payload);
             break;
+          case ADD_CREDITS:
+            this.addCredits(payload);
+            break;
+          case GET_GOVERNANCE_ADDRESS:
+            this.getGovernanceAddress(payload)
+            break;
           default: {
           }
         }
@@ -321,7 +330,7 @@ class Store {
     // let poolAsset = store.getStore('poolAsset')
     let keeperAsset = store.getStore('keeperAsset')
 
-    let assets = [baseAsset, liquidityAsset, rewardAsset] // ,poolAsset
+    let assets = [baseAsset, liquidityAsset, rewardAsset, keeperAsset] // ,poolAsset
 
     if(!account || !account.address || !assets) {
       return false
@@ -601,7 +610,8 @@ class Store {
   }
 
   _getWeb3Provider = async () => {
-    const web3context = store.getStore('web3context')
+
+    const web3context = store.getStore('web3context');
     if(!web3context) {
       return null
     }
@@ -1152,7 +1162,6 @@ class Store {
       currentVotes = currentVotes/10**keeperAsset.decimals
       keeperAsset.currentVotes = currentVotes
 
-      console.log(keeperAsset)
       return keeperAsset
     } catch(ex) {
       console.log(ex)
@@ -1578,13 +1587,27 @@ class Store {
     })
   }
 
+  getGovernanceAddress = async (payload) => {
+    const governance = store.getStore("governance");
+    if (governance.address){
+      emitter.emit(GET_GOVERNANCE_ADDRESS_RETURNED, governance.address)
+    } else {
+      const address = await this._getGovernanceAddress();
+      if (address){
+        store.setStore({governance: {address}});
+        emitter.emit(GET_GOVERNANCE_ADDRESS_RETURNED, address)
+      } else {
+        emitter.emit(ERROR, GET_GOVERNANCE_ADDRESS);
+      }
+    }
+  }
+
   _getGovernanceAddress = async () => {
     try {
       const web3 = await this._getWeb3Provider();
       const jobRegistryContract = new web3.eth.Contract(JobRegistryABI, config.jobRegistryAddress)
 
-      const address = await jobRegistryContract.methods.governance().call({})
-      return address
+      return await jobRegistryContract.methods.governance().call({})
     } catch(ex) {
       console.log(ex)
       return null
@@ -1691,6 +1714,7 @@ class Store {
     try {
       const keeperContract = new web3.eth.Contract(KeeperABI, config.keeperAddress)
       const jobRegistryContract = new web3.eth.Contract(JobRegistryABI, config.jobRegistryAddress)
+      const jobContract = new web3.eth.Contract(OwnableABI, address)
 
       const isJob = await keeperContract.methods.jobs(address).call({ })
       if(!isJob) {
@@ -1703,9 +1727,9 @@ class Store {
       if(!jobProfile) {
         jobProfile = {}
       }
-
-      const jobAdded = await jobRegistryContract.methods.jobAdded(address).call({ })
-      jobProfile.jobAdded = jobAdded
+      jobProfile.owner = await jobContract.methods.owner().call({ });
+      jobProfile.isLpFunded = false;
+      jobProfile.jobAdded = await jobRegistryContract.methods.jobAdded(address).call({})
 
       let credits = await keeperContract.methods.credits(address, keeperAsset.address).call({ })
       credits = credits/10**keeperAsset.decimals
@@ -2015,6 +2039,57 @@ class Store {
     const keeperAsset = this.getStore('keeperAsset')
     const keeperContract = new web3.eth.Contract(KeeperABI, config.keeperAddress)
     keeperContract.methods.transferKeeperRight(keeperAsset.address, from, to).send({ from, gasPrice: web3.utils.toWei(await this._getGasPrice(), 'gwei') })
+        .on('transactionHash', function(hash){
+          emitter.emit(TX_SUBMITTED, hash)
+          callback(null, hash)
+        })
+        .on('confirmation', function(confirmationNumber, receipt){
+          if(confirmationNumber === 2) {
+            emitter.emit(TX_CONFIRMED, receipt.transactionHash)
+          }
+        })
+        .on('receipt', function(receipt){
+          emitter.emit(TX_RECEIPT, receipt.transactionHash)
+        })
+        .on('error', function(error) {
+          if (!error.toString().includes("-32601")) {
+            if(error.message) {
+              return callback(error.message)
+            }
+            callback(error)
+          }
+        })
+        .catch((error) => {
+          if (!error.toString().includes("-32601")) {
+            if(error.message) {
+              return callback(error.message)
+            }
+            callback(error)
+          }
+        })
+  }
+
+  addCredits = (payload) => {
+    //_getGovernanceAddress()
+    const {address, amount} = payload.content;
+    this._addCredits(address, amount, (err, res) => {
+      if(err) {
+        emitter.emit(SNACKBAR_ERROR, err);
+        return emitter.emit(ERROR, ADD_CREDITS);
+      }
+
+      return emitter.emit(ADD_CREDITS_RETURNED, res);
+    });
+
+  }
+
+  _addCredits = async (address, amount, callback) => {
+    const web3 = await this._getWeb3Provider();
+    const keeperContract = new web3.eth.Contract(KeeperABI, config.keeperAddress);
+    const account = store.getStore('account').address;
+    const keeperAddress = store.getStore('keeperAsset').address;
+    keeperContract.methods.addCredit(keeperAddress, address, web3.utils.toWei(amount, 'ether'))
+        .send({ from: account, gasPrice: web3.utils.toWei(await this._getGasPrice(), 'gwei') })
         .on('transactionHash', function(hash){
           emitter.emit(TX_SUBMITTED, hash)
           callback(null, hash)

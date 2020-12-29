@@ -15,6 +15,7 @@ import CloseIcon from '@material-ui/icons/Close';
 import ThumbUpIcon from '@material-ui/icons/ThumbUp';
 import KeyboardBackspaceIcon from '@material-ui/icons/KeyboardBackspace';
 import FileCopyIcon from '@material-ui/icons/FileCopy';
+import AddCircleOutlineIcon from '@material-ui/icons/AddCircleOutline';
 import Store from "../../stores";
 import { colors } from '../../theme'
 
@@ -36,8 +37,17 @@ import {
   APPLY_CREDIT_TO_JOB,
   APPLY_CREDIT_TO_JOB_RETURNED,
   UNBOND_LIQUIDITY_FROM_JOB,
-  UNBOND_LIQUIDITY_FROM_JOB_RETURNED
+  UNBOND_LIQUIDITY_FROM_JOB_RETURNED,
+  ADD_CREDITS,
+  ADD_CREDITS_RETURNED,
+  GET_GOVERNANCE_ADDRESS_RETURNED,
+  GET_GOVERNANCE_ADDRESS
 } from '../../constants'
+import IconButton from "@material-ui/core/IconButton";
+import Box from "@material-ui/core/Box";
+import KeeperAssetDialog from "./KeeperAssetDialog";
+import JobRefillDialog from "./JobRefillDialog";
+import Web3 from "web3";
 
 const styles = theme => ({
   root: {
@@ -244,14 +254,14 @@ class Job extends Component {
   constructor(props) {
     super()
 
-    let jobAddress = (props && props.match && props.match.params && props.match.params.address) ? props.match.params.address : null
+    this.getJobAddress = () => {
+      return (props && props.match && props.match.params && props.match.params.address) ? props.match.params.address : null
+    }
+    let jobAddress = this.getJobAddress();
 
     if(!jobAddress) {
       props.history.push('/relay3r/')
     }
-
-    dispatcher.dispatch({ type: GET_JOB_PROFILE, content: { address: jobAddress } })
-    dispatcher.dispatch({ type:GET_BALANCES, content: {} })
 
     const account = store.getStore('account')
     const keeperAsset = store.getStore('keeperAsset')
@@ -264,8 +274,11 @@ class Job extends Component {
       addLiquidityAmountError: false,
       removeLiquidityAmount: '',
       removeLiquidityAmountError: false,
-      job: {}
+      job: {},
+      addCreditsOpen: false,
     }
+
+    this.loadData();
   }
 
   componentWillMount() {
@@ -277,6 +290,8 @@ class Job extends Component {
     emitter.on(REMOVE_LIQUIDITY_FROM_JOB_RETURNED, this.removeLiquidityFromJobReturned)
     emitter.on(APPLY_CREDIT_TO_JOB_RETURNED, this.applyCreditToJobReturned)
     emitter.on(UNBOND_LIQUIDITY_FROM_JOB_RETURNED, this.unbondLiquidityFromJobReturned)
+    emitter.on(ADD_CREDITS_RETURNED, this.reloadJobProfile);
+    emitter.on(GET_GOVERNANCE_ADDRESS_RETURNED, this.governanceAddressReturned)
   }
 
   componentWillUnmount() {
@@ -288,15 +303,25 @@ class Job extends Component {
     emitter.removeListener(REMOVE_LIQUIDITY_FROM_JOB_RETURNED, this.removeLiquidityFromJobReturned)
     emitter.removeListener(APPLY_CREDIT_TO_JOB_RETURNED, this.applyCreditToJobReturned)
     emitter.removeListener(UNBOND_LIQUIDITY_FROM_JOB_RETURNED, this.unbondLiquidityFromJobReturned)
+    emitter.removeListener(ADD_CREDITS_RETURNED, this.reloadJobProfile);
+    emitter.removeListener(GET_GOVERNANCE_ADDRESS_RETURNED, this.governanceAddressReturned)
   };
 
   connectionConnected = () => {
+    const account = store.getStore('account')
+    const keeperAsset = store.getStore('keeperAsset')
+    this.setState({account, keeperAsset});
+    this.loadData();
+  }
+
+  loadData = () =>{
     emitter.emit(START_LOADING, GET_JOB_PROFILE)
 
-    const { props } = this
-    let jobAddress = (props && props.match && props.match.params && props.match.params.address) ? props.match.params.address : null
+    let jobAddress = this.getJobAddress();
 
     dispatcher.dispatch({ type: GET_JOB_PROFILE, content: { address: jobAddress } })
+    dispatcher.dispatch({ type: GET_GOVERNANCE_ADDRESS, content: {} })
+    dispatcher.dispatch({ type: GET_BALANCES, content: {} })
   }
 
   errorReturned = (source) => {
@@ -309,7 +334,6 @@ class Job extends Component {
   }
 
   jobProfileReturned = (jobProfile) => {
-    console.log(jobProfile)
     emitter.emit(STOP_LOADING, GET_JOB_PROFILE)
     this.setState({ job: jobProfile })
   }
@@ -334,12 +358,39 @@ class Job extends Component {
     emitter.emit(STOP_LOADING, UNBOND_LIQUIDITY_FROM_JOB)
   }
 
+  reloadJobProfile = () => {
+    const {job} = this.state
+    emitter.emit(START_LOADING, GET_JOB_PROFILE);
+    dispatcher.dispatch({ type: GET_JOB_PROFILE, content: { address: job.address } })
+  }
+
+  governanceAddressReturned = (address) => {
+    this.setState({governance: address})
+  }
+
   copyAddressToClipboard = (event, address) => {
     event.stopPropagation();
     navigator.clipboard.writeText(address).then(() => {
       //show copied
     });
   };
+
+  isOwner = () => {
+    return this.state.job.owner === this.state.account;
+  }
+
+  canRefill = () => {
+    const {address} = this.state.account;
+    const govAddress = this.state.governance;
+    if (address && govAddress){
+      return Web3.utils.toChecksumAddress(address) === Web3.utils.toChecksumAddress(govAddress);
+    }
+    return false;
+  }
+
+  isJob = () => {
+    return this.state.job && this.state.job.isJob;
+  }
 
   render() {
     const { classes } = this.props;
@@ -352,7 +403,6 @@ class Job extends Component {
       removeLiquidityAmount,
       removeLiquidityAmountError,
     } = this.state
-
     let state = 'Inactive'
     let stateClass = classes.stateNeutral
 
@@ -423,12 +473,26 @@ class Job extends Component {
               </div>
               <div className={ classes.jobInfo }>
                 <Typography variant='h4' className={ classes.textColorSecondary }>Total Credits</Typography>
-                <Typography variant='h4'>{ job.credits ? job.credits.toFixed(2) : '0.00' } { keeperAsset ? keeperAsset.symbol : '' }</Typography>
+                <Box display={"flex"} alignItems={"center"}>
+                  <Typography variant='h4'>
+                    { job.credits ? job.credits.toFixed(2) : '0.00' } { keeperAsset ? keeperAsset.symbol : '' }
+                  </Typography>
+                  {
+                    this.isJob() && this.canRefill() && (
+                        <>
+                          <IconButton style={{padding: 8}} onClick={this.onAddCredits}>
+                            <AddCircleOutlineIcon/>
+                          </IconButton>
+                          <JobRefillDialog job={job} open={this.state.addCreditsOpen} closeModal={() => this.setState({addCreditsOpen: false})}/>
+                        </>
+                    )
+                  }
+                </Box>
               </div>
             </div>
           }
-          { /*
-            job && job.isJob &&
+          {
+            job && job.isJob && job.isLpFunded && this.isOwner() &&
             <div className={ classes.liquidityContainer }>
               <div className={ classes.field }>
                 <div className={ classes.fieldTitle }>
@@ -514,9 +578,9 @@ class Job extends Component {
                 </div>
               </div>
             </div>
-          */}
-          { /*
-            job && job.isJob &&
+          }
+          {
+            job && job.isJob && job.isLpFunded &&
             <div className={ classes.liquidityContainer }>
               <div className={ classes.field }>
                 <div className={ classes.buttonContainer}>
@@ -548,7 +612,7 @@ class Job extends Component {
                 </div>
               </div>
             </div>
-          */ }
+          }
           { job && job.isJob &&
             this.renderJobPreview()
           }
@@ -687,6 +751,12 @@ class Job extends Component {
     this.setState({ loading: true })
     dispatcher.dispatch({ type: UNBOND_LIQUIDITY_FROM_JOB, content: { address: job.address } })
   }
+
+  onAddCredits = () => {
+    this.setState({addCreditsOpen: true});
+  }
+
+
 }
 
 export default withRouter(withStyles(styles)(Job));
