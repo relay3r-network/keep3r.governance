@@ -2038,7 +2038,7 @@ class Store {
     const web3 = await this._getWeb3Provider();
     const keeperAsset = this.getStore('keeperAsset')
     const keeperContract = new web3.eth.Contract(KeeperABI, config.keeperAddress)
-    keeperContract.methods.transferKeeperRight(keeperAsset.address, from, to).send({ from, gasPrice: web3.utils.toWei(await this._getGasPrice(), 'gwei') })
+    keeperContract.methods.transferKeeperRight(keeperAsset.address, from, to, web3.utils.toWei(keeperAsset.bonds.toString())).send({ from, gasPrice: web3.utils.toWei(await this._getGasPrice(), 'gwei') })
         .on('transactionHash', function(hash){
           emitter.emit(TX_SUBMITTED, hash)
           callback(null, hash)
