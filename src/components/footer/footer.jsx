@@ -110,10 +110,10 @@ class Footer extends Component {
 
     return (
       <div className={classes.footer}>
-          <div  className={ classes.link } onClick={()=> window.open("https://liquidity.relay3r.network/", "_blank")} >
+          {/* <div  className={ classes.link } onClick={()=> window.open("https://liquidity.relay3r.network/", "_blank")} >
           <OpacityIcon className={ classes.icon }/>
             <Typography variant={ 'h4'} >Liquidity Rewards</Typography>
-          </div>
+          </div> */}
           <div  className={ classes.link } onClick={()=> window.open("https://t.me/relay3r", "_blank")} >
             <TelegramIcon className={ classes.icon }/>
             <Typography variant={ 'h5'} >Telegram</Typography>
