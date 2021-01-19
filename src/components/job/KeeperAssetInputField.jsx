@@ -1,7 +1,6 @@
 import React from 'react';
 import {InputAdornment, Typography} from "@material-ui/core";
 import TextField from "@material-ui/core/TextField";
-import DialogContent from "@material-ui/core/DialogContent";
 import withStyles from "@material-ui/core/styles/withStyles";
 import Store from "../../stores";
 

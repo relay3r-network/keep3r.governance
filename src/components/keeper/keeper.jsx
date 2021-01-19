@@ -22,9 +22,7 @@ import {
 } from "@material-ui/core";
 import AddIcon from "@material-ui/icons/Add";
 
-import Loader from "../loader";
-
-import SearchIcon from "@material-ui/icons/Search";
+import SearchIcon from '@material-ui/icons/Search';
 
 import Store from "../../stores";
 import { colors } from "../../theme";
@@ -346,9 +344,7 @@ class Keeper extends Component {
   };
 
   keeperProfileReturned = () => {
-    emitter.emit(STOP_LOADING, GET_KEEPERS);
-
-    console.log(store.getStore("keeperAsset"));
+    emitter.emit(STOP_LOADING, GET_KEEPER)
 
     this.setState({
       keeperAsset: store.getStore("keeperAsset"),
@@ -428,15 +424,11 @@ class Keeper extends Component {
   render() {
     const { classes } = this.props;
     const {
-      loading,
       keeperAsset,
-      keepers,
       onBond,
       onBondRemove,
-      currentBlock,
-      searchKeeper,
-      searchKeeperError,
-    } = this.state;
+      loading
+    } = this.state
 
     // var delegates = 'Self';
     // if (keeperAsset.delegates && keeperAsset.delegates !== '0x0000000000000000000000000000000000000000') {
@@ -481,8 +473,6 @@ class Keeper extends Component {
                   <Fab
                     color="primary"
                     size="medium"
-                    // variant="extended"
-                    color="primary"
                     onClick={this.onAddJob}
                     aria-label="add"
                   >
@@ -860,9 +850,6 @@ class Keeper extends Component {
     const { classes } = this.props
     const {
       keeperAsset,
-      withdrawBondAmount,
-      withdrawBondAmountError,
-      loading
     } = this.state
 
     if((parseInt(keeperAsset.unbondings) - parseInt(keeperAsset.unbondingDelay)) > 0 && moment(keeperAsset.unbondings*1000).valueOf() < moment().valueOf() && keeperAsset.partialUnbonding) {

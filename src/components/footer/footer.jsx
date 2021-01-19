@@ -3,26 +3,13 @@ import { withRouter } from "react-router-dom";
 import { withStyles } from '@material-ui/core/styles';
 import {
   Typography,
-  Select,
-  MenuItem,
-  FormControl
 } from '@material-ui/core';
 import { colors } from '../../theme'
 
-import AttachMoneyIcon from '@material-ui/icons/AttachMoney';
-import HowToVoteIcon from '@material-ui/icons/HowToVote';
-import SecurityIcon from '@material-ui/icons/Security';
 import DescriptionIcon from '@material-ui/icons/Description';
-import MonetizationOnIcon from '@material-ui/icons/MonetizationOn';
 
-import ForumIcon from '@material-ui/icons/Forum';
-import BarChartIcon from '@material-ui/icons/BarChart';
-import BuildIcon from '@material-ui/icons/Build';
 import TelegramIcon from '@material-ui/icons/Telegram';
 import TwitterIcon from '@material-ui/icons/Twitter';
-import OpacityIcon from '@material-ui/icons/Opacity';
-import Store from "../../stores";
-const store = Store.store
 
 const styles = theme => ({
   footer: {
@@ -106,7 +93,7 @@ class Footer extends Component {
   }
 
   render() {
-    const { classes, t, location } = this.props;
+    const { classes } = this.props;
 
     return (
       <div className={classes.footer}>

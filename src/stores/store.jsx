@@ -67,6 +67,10 @@ import {
   TX_SUBMITTED,
   UNBOND_LIQUIDITY_FROM_JOB,
   UNBOND_LIQUIDITY_FROM_JOB_RETURNED,
+  GET_LIQUIDITY_PAIRS,
+  LIQUIDITY_PAIRS_RETURNED,
+  GET_JOB_BOND_UNBOND,
+  JOB_BOND_UNBOND_RETURNED,
   VOTE_AGAINST,
   VOTE_AGAINST_RETURNED,
   VOTE_FOR,
@@ -83,6 +87,7 @@ import {RewardsABI} from './abi/rewardsABI';
 import {PoolABI} from './abi/poolABI';
 import {KeeperABI} from './abi/keeperABI';
 import {SwaperAbi} from './abi/swaperABI';
+import { SushiLPABI } from './abi/slpABI';
 
 import {JobRegistryABI} from './abi/jobRegistryABI';
 import {OwnableABI} from "./abi/ownableABI";
@@ -196,7 +201,11 @@ class Store {
       ],
       governance: {
         address: ""
-      }
+      },
+      liquidityPairs: [
+
+      ],
+      jobProfile: {}
     }
 
     dispatcher.register(
@@ -305,6 +314,12 @@ class Store {
           case GET_GOVERNANCE_ADDRESS:
             this.getGovernanceAddress(payload)
             break;
+          case GET_LIQUIDITY_PAIRS:
+            this.getLiquidityPairs(payload);
+            break;
+          case GET_JOB_BOND_UNBOND:
+            this.getJobBondUnbond(payload);
+            break;
           default: {
           }
         }
@@ -321,6 +336,7 @@ class Store {
     return emitter.emit('StoreUpdated');
   };
 
+
   getBalances = async () => {
     const account = store.getStore('account')
 
@@ -328,9 +344,9 @@ class Store {
     let liquidityAsset = store.getStore('liquidityAsset')
     let rewardAsset = store.getStore('rewardAsset')
     // let poolAsset = store.getStore('poolAsset')
-    let keeperAsset = store.getStore('keeperAsset')
+    // let keeperAsset = store.getStore('keeperAsset')
 
-    let assets = [baseAsset, liquidityAsset, rewardAsset, keeperAsset] // ,poolAsset
+    let assets = [baseAsset, liquidityAsset, rewardAsset] // ,poolAsset
 
     if(!account || !account.address || !assets) {
       return false
@@ -356,12 +372,13 @@ class Store {
       liquidityAsset = resultAssets[1]
       rewardAsset = resultAssets[2]
       // poolAsset = resultAssets[3]
-      keeperAsset = resultAssets[4]
+      // keeperAsset = resultAssets[4]
 
       store.setStore({ baseAsset: baseAsset, liquidityAsset: liquidityAsset, rewardAsset: rewardAsset }) //, poolAsset: poolAsset
       return emitter.emit(BALANCES_RETURNED)
     })
   }
+
 
   _getBalance = async (web3, asset, account, callback) => {
     try {
@@ -1184,7 +1201,7 @@ class Store {
       const jobs = await keeperContract.methods.getJobs().call({ from: account.address });
 
       async.map(jobs, async (job, callback) => {
-        let jobProfile = await this._getJobData(web3, keeperAsset, job)
+        let jobProfile = await this._getJobData(web3, keeperAsset, job, account)
         jobProfile.address = job
 
         if(callback) {
@@ -1561,29 +1578,37 @@ class Store {
 
   addJob = async (payload) => {
     const account = store.getStore('account')
+    const keeperAsset = store.getStore('keeperAsset')
 
-    const { address, addLiquidityAmount, name, docs, ipfs } = payload.content
+    const { address, addLiquidityAmount, name, docs, ipfs, selectedLiquidityPair } = payload.content
 
-    this._callAddLiquidityToJob(account, address, addLiquidityAmount, async (err, res) => {
+    this._checkApproval(selectedLiquidityPair, account, addLiquidityAmount, keeperAsset.address, (err) => {
       if(err) {
-        emitter.emit(SNACKBAR_ERROR, err);
-        return emitter.emit(ERROR, ADD_JOB);
+        emitter.emit(SNACKBAR_ERROR, err)
+        return emitter.emit(ERROR, STAKE)
       }
 
-      const governanceAddress = await this._getGovernanceAddress()
-      if(governanceAddress.toLowerCase() === account.address.toLowerCase() && (name !== '' || docs !== '' || ipfs !== '')) {
-        this._callAdd(account, address, name, docs, ipfs, (err, res) => {
-          if(err) {
-            emitter.emit(SNACKBAR_ERROR, err);
-            return emitter.emit(ERROR, ADD_JOB);
-          }
+      this._callAddLiquidityToJob(account, address, addLiquidityAmount, selectedLiquidityPair, async (err, res) => {
+        if(err) {
+          emitter.emit(SNACKBAR_ERROR, err);
+          return emitter.emit(ERROR, ADD_JOB);
+        }
 
+        const governanceAddress = await this._getGovernanceAddress()
+        if(governanceAddress.toLowerCase() === account.address.toLowerCase() && (name !== '' || docs !== '' || ipfs !== '')) {
+          this._callAdd(account, address, name, docs, ipfs, (err, res) => {
+            if(err) {
+              emitter.emit(SNACKBAR_ERROR, err);
+              return emitter.emit(ERROR, ADD_JOB);
+            }
+
+            return emitter.emit(ADD_JOB_RETURNED, res)
+          })
+
+        } else {
           return emitter.emit(ADD_JOB_RETURNED, res)
-        })
-
-      } else {
-        return emitter.emit(ADD_JOB_RETURNED, res)
-      }
+        }
+      })
     })
   }
 
@@ -1650,15 +1675,18 @@ class Store {
       })
   }
 
-  _callAddLiquidityToJob = async (account, address, amount, callback) => {
+  _callAddLiquidityToJob = async (account, address, amount, selectedLiquidityPair, callback) => {
     const web3 = await this._getWeb3Provider();
-    const keeperAsset = store.getStore('keeperAsset')
 
     const keeperContract = new web3.eth.Contract(KeeperABI, config.keeperAddress)
 
-    let amountToSend = (amount*10**keeperAsset.decimals).toFixed(0);
+    let amountToSend = (amount*10**selectedLiquidityPair.decimals).toFixed(0);
 
-    keeperContract.methods.addLiquidityToJob(keeperAsset.address, address, amountToSend).send({ from: account.address, gasPrice: web3.utils.toWei(await this._getGasPrice(), 'gwei') })
+    console.log(selectedLiquidityPair.address)
+    console.log(address)
+    console.log(amountToSend)
+
+    keeperContract.methods.addLiquidityToJob(selectedLiquidityPair.address, address, amountToSend).send({ from: account.address, gasPrice: web3.utils.toWei(await this._getGasPrice(), 'gwei') })
       .on('transactionHash', function(hash){
         emitter.emit(TX_SUBMITTED, hash)
         callback(null, hash)
@@ -1699,9 +1727,10 @@ class Store {
 
     try {
 
-      let jobProfile = await this._getJobData(web3, keeperAsset, payload.content.address)
+      let jobProfile = await this._getJobData(web3, keeperAsset, payload.content.address, null)
       jobProfile.address = payload.content.address
 
+      store.setStore({ jobProfile: jobProfile })
       emitter.emit(JOB_PROFILE_RETURNED, jobProfile)
 
     } catch(ex) {
@@ -1710,7 +1739,7 @@ class Store {
     }
   }
 
-  _getJobData = async (web3, keeperAsset, address) => {
+  _getJobData = async (web3, keeperAsset, address,  account) => {
     try {
       const keeperContract = new web3.eth.Contract(KeeperABI, config.keeperAddress)
       const jobRegistryContract = new web3.eth.Contract(JobRegistryABI, config.jobRegistryAddress)
@@ -1793,31 +1822,39 @@ class Store {
     } else {
       return null
     }
-
   }
-
 
   addLiquidityToJob = async (payload) => {
     const account = store.getStore('account')
+    const keeperAsset = store.getStore('keeperAsset')
 
-    const { address, addLiquidityAmount } = payload.content
+    const { address, addLiquidityAmount, selectedLiquidityPair } = payload.content
 
-    this._callAddLiquidityToJob(account, address, addLiquidityAmount, (err, res) => {
+    this._checkApproval(selectedLiquidityPair, account, addLiquidityAmount, keeperAsset.address, (err) => {
       if(err) {
-        emitter.emit(SNACKBAR_ERROR, err);
-        return emitter.emit(ERROR, ADD_LIQUIDITY_TO_JOB);
+        emitter.emit(SNACKBAR_ERROR, err)
+        return emitter.emit(ERROR, STAKE)
       }
 
-      return emitter.emit(ADD_LIQUIDITY_TO_JOB_RETURNED, res)
+      this._callAddLiquidityToJob(account, address, addLiquidityAmount, selectedLiquidityPair, (err, res) => {
+        if(err) {
+          emitter.emit(SNACKBAR_ERROR, err);
+          return emitter.emit(ERROR, ADD_LIQUIDITY_TO_JOB);
+        }
+
+        return emitter.emit(ADD_LIQUIDITY_TO_JOB_RETURNED, res)
+      })
+
     })
+
   }
 
   applyCreditToJob = async (payload) => {
     const account = store.getStore('account')
 
-    const { address } = payload.content
+    const { address, selectedLiquidityPair } = payload.content
 
-    this._callApplyCreditToJob(account, address, (err, res) => {
+    this._callApplyCreditToJob(account, address, selectedLiquidityPair, (err, res) => {
       if(err) {
         emitter.emit(SNACKBAR_ERROR, err);
         return emitter.emit(ERROR, APPLY_CREDIT_TO_JOB);
@@ -1827,13 +1864,12 @@ class Store {
     })
   }
 
-  _callApplyCreditToJob = async (account, address, callback) => {
+  _callApplyCreditToJob = async (account, address, selectedLiquidityPair, callback) => {
     const web3 = await this._getWeb3Provider();
-    const keeperAsset = store.getStore('keeperAsset')
 
     const keeperContract = new web3.eth.Contract(KeeperABI, config.keeperAddress)
 
-    keeperContract.methods.applyCreditToJob(account.address, keeperAsset.address, address).send({ from: account.address, gasPrice: web3.utils.toWei(await this._getGasPrice(), 'gwei') })
+    keeperContract.methods.applyCreditToJob(account.address, selectedLiquidityPair.address, address).send({ from: account.address, gasPrice: web3.utils.toWei(await this._getGasPrice(), 'gwei') })
       .on('transactionHash', function(hash){
         emitter.emit(TX_SUBMITTED, hash)
         callback(null, hash)
@@ -1867,9 +1903,9 @@ class Store {
   unbondLiquidityFromJob = async (payload) => {
     const account = store.getStore('account')
 
-    const { address, removeLiquidityAmount } = payload.content
+    const { address, unbondLiquidityAmount, selectedLiquidityPair } = payload.content
 
-    this._callUnbondLiquidityFromJob(account, address, removeLiquidityAmount, (err, res) => {
+    this._callUnbondLiquidityFromJob(account, address, unbondLiquidityAmount, selectedLiquidityPair, (err, res) => {
       if(err) {
         emitter.emit(SNACKBAR_ERROR, err);
         return emitter.emit(ERROR, UNBOND_LIQUIDITY_FROM_JOB);
@@ -1879,15 +1915,14 @@ class Store {
     })
   }
 
-  _callUnbondLiquidityFromJob = async (account, address, amount, callback) => {
+  _callUnbondLiquidityFromJob = async (account, address, amount, selectedLiquidityPair, callback) => {
     const web3 = await this._getWeb3Provider();
-    const keeperAsset = store.getStore('keeperAsset')
 
     const keeperContract = new web3.eth.Contract(KeeperABI, config.keeperAddress)
 
-    let amountToSend = (amount*10**keeperAsset.decimals).toFixed(0);
+    let amountToSend = (amount*10**selectedLiquidityPair.decimals).toFixed(0);
 
-    keeperContract.methods.unbondLiquidityFromJob(keeperAsset.address, address, amountToSend).send({ from: account.address, gasPrice: web3.utils.toWei(await this._getGasPrice(), 'gwei') })
+    keeperContract.methods.unbondLiquidityFromJob(selectedLiquidityPair.address, address, amountToSend).send({ from: account.address, gasPrice: web3.utils.toWei(await this._getGasPrice(), 'gwei') })
       .on('transactionHash', function(hash){
         emitter.emit(TX_SUBMITTED, hash)
         callback(null, hash)
@@ -2120,6 +2155,123 @@ class Store {
         })
   }
 
+  getLiquidityPairs = async (payload) => {
+
+    const account = store.getStore('account')
+    const web3 = await this._getWeb3Provider();
+    if(web3 == null) return;
+    const keeperContract = new web3.eth.Contract(KeeperABI, config.keeperAddress)
+
+    let notException = true
+    let index = 0
+    const liquidityPairs = []
+
+    while(notException) {
+      try {
+        const address = await keeperContract.methods.liquidityPairs(index).call()
+        liquidityPairs.push(address)
+        index++
+      } catch(ex) {
+        notException = false
+      }
+    }
+
+    async.map(liquidityPairs, async (pair, callback) => {
+      const slpContract = new web3.eth.Contract(SushiLPABI, pair)
+
+      let symbol = ''
+
+      try {
+        const token0Address = await slpContract.methods.token0().call()
+        const token1Address = await slpContract.methods.token1().call()
+
+        const erc20Contract0 = new web3.eth.Contract(ERC20ABI, token0Address)
+        const erc20Contract1 = new web3.eth.Contract(ERC20ABI, token1Address)
+
+        const symbol0 = await erc20Contract0.methods.symbol().call()
+        const symbol1 = await erc20Contract1.methods.symbol().call()
+
+        symbol = symbol0+'-'+symbol1
+
+      } catch(ex) {
+        symbol = await slpContract.methods.symbol().call()
+      }
+
+      const decimals = parseInt(await slpContract.methods.decimals().call())
+      const balance = await slpContract.methods.balanceOf(account.address).call()
+
+
+      const returnOBJ = {
+        address: pair,
+        balance: balance/(10**decimals),
+        decimals: decimals,
+        symbol: symbol
+      }
+
+      if(callback) {
+        callback(null, returnOBJ)
+      } else {
+        return returnOBJ
+      }
+
+    }, (err, liquidityPairsPopulated) => {
+      if(err) {
+        emitter.emit(SNACKBAR_ERROR, err);
+        return emitter.emit(ERROR, GET_LIQUIDITY_PAIRS);
+      }
+
+      store.setStore({ liquidityPairs: liquidityPairsPopulated })
+      return emitter.emit(LIQUIDITY_PAIRS_RETURNED, liquidityPairsPopulated)
+    })
+  }
+
+  getJobBondUnbond = async (payload) => {
+    const jobProfile = store.getStore('jobProfile')
+    const account = store.getStore('account')
+    const liquidityPairs = store.getStore('liquidityPairs')
+    const web3 = await this._getWeb3Provider();
+
+    const { address } = payload.content
+
+    if(!liquidityPairs || liquidityPairs.length === 0) {
+      return
+    }
+
+    const keeperContract = new web3.eth.Contract(KeeperABI, config.keeperAddress)
+
+    async.map(liquidityPairs, async (lp, callback) => {
+
+      let returnOBJ = {
+        symbol: lp.symbol
+      }
+
+      let bonds = await keeperContract.methods.liquidityAmount(account.address, lp.address, address).call()
+      returnOBJ.bonds = bonds/10**lp.decimals
+      let unbonds = await keeperContract.methods.liquidityAmountsUnbonding(account.address, lp.address, address).call()
+      returnOBJ.unbonds = unbonds/10**lp.decimals
+      let liquidityProvided = await keeperContract.methods.liquidityProvided(account.address, lp.address, address).call()
+      returnOBJ.provided = liquidityProvided/10**lp.decimals
+
+      returnOBJ.bondsActivatable = await keeperContract.methods.liquidityApplied(account.address, lp.address, address).call()
+      returnOBJ.unbondsRemovable = await keeperContract.methods.liquidityUnbonding(account.address, lp.address, address).call()
+
+      if(callback) {
+        callback(null, returnOBJ)
+      } else {
+        return returnOBJ
+      }
+    }, (err, data) => {
+      if(err) {
+        emitter.emit(SNACKBAR_ERROR, err);
+        return emitter.emit(ERROR, GET_JOB_BOND_UNBOND);
+      }
+
+      jobProfile.bondUnbondPairs = data
+      store.setStore({ jobProfile: jobProfile })
+
+      return emitter.emit(JOB_BOND_UNBOND_RETURNED, jobProfile)
+    })
+  }
 }
 
 var store = new Store();

@@ -6,9 +6,9 @@ import {
   Typography,
   Button,
   TextField,
-  InputAdornment,
   Tooltip,
-  Fab
+  Fab,
+  MenuItem
 } from '@material-ui/core';
 
 import CloseIcon from '@material-ui/icons/Close';
@@ -38,14 +38,20 @@ import {
   APPLY_CREDIT_TO_JOB_RETURNED,
   UNBOND_LIQUIDITY_FROM_JOB,
   UNBOND_LIQUIDITY_FROM_JOB_RETURNED,
-  ADD_CREDITS,
+  // ADD_CREDITS,
   ADD_CREDITS_RETURNED,
   GET_GOVERNANCE_ADDRESS_RETURNED,
-  GET_GOVERNANCE_ADDRESS
+  GET_GOVERNANCE_ADDRESS,
+  GET_KEEPER,
+  KEEPER_RETURNED,
+  GET_LIQUIDITY_PAIRS,
+  LIQUIDITY_PAIRS_RETURNED,
+  GET_JOB_BOND_UNBOND,
+  JOB_BOND_UNBOND_RETURNED
 } from '../../constants'
 import IconButton from "@material-ui/core/IconButton";
 import Box from "@material-ui/core/Box";
-import KeeperAssetDialog from "./KeeperAssetDialog";
+// import KeeperAssetDialog from "./KeeperAssetDialog";
 import JobRefillDialog from "./JobRefillDialog";
 import Web3 from "web3";
 
@@ -242,6 +248,15 @@ const styles = theme => ({
   },
   jobPreviewContainer: {
     width: '100%',
+    marginTop: '24px'
+  },
+  assetSelectMenu: {
+    display: 'flex',
+    alignItems: 'center'
+  },
+  assetSelectIcon: {
+    marginRight: '6px',
+    display: 'flex'
   }
 })
 
@@ -263,19 +278,27 @@ class Job extends Component {
       props.history.push('/relay3r/')
     }
 
+    dispatcher.dispatch({ type: GET_JOB_PROFILE, content: { address: jobAddress } })
+    dispatcher.dispatch({ type: GET_BALANCES, content: {} })
+
     const account = store.getStore('account')
     const keeperAsset = store.getStore('keeperAsset')
+    const liquidityPairs = store.getStore('liquidityPairs')
+    const selectedLiquidityPair = liquidityPairs.length > 0 ? liquidityPairs[0] : null
 
     this.state = {
       loading: false,
       account: account,
       keeperAsset: keeperAsset,
+      liquidityPairs: liquidityPairs,
+      liquidityPair: selectedLiquidityPair ? selectedLiquidityPair.symbol : '',
+      selectedLiquidityPair: selectedLiquidityPair,
       addLiquidityAmount: '',
       addLiquidityAmountError: false,
-      removeLiquidityAmount: '',
-      removeLiquidityAmountError: false,
       job: {},
       addCreditsOpen: false,
+      unbondLiquidityAmount: '',
+      unbondLiquidityAmountError: false
     }
 
     this.loadData();
@@ -292,6 +315,9 @@ class Job extends Component {
     emitter.on(UNBOND_LIQUIDITY_FROM_JOB_RETURNED, this.unbondLiquidityFromJobReturned)
     emitter.on(ADD_CREDITS_RETURNED, this.reloadJobProfile);
     emitter.on(GET_GOVERNANCE_ADDRESS_RETURNED, this.governanceAddressReturned)
+    emitter.on(KEEPER_RETURNED, this.keeperProfileReturned)
+    emitter.on(LIQUIDITY_PAIRS_RETURNED, this.liquidityPairsReturned)
+    emitter.on(JOB_BOND_UNBOND_RETURNED, this.jobBondUnbondReturned)
   }
 
   componentWillUnmount() {
@@ -305,7 +331,29 @@ class Job extends Component {
     emitter.removeListener(UNBOND_LIQUIDITY_FROM_JOB_RETURNED, this.unbondLiquidityFromJobReturned)
     emitter.removeListener(ADD_CREDITS_RETURNED, this.reloadJobProfile);
     emitter.removeListener(GET_GOVERNANCE_ADDRESS_RETURNED, this.governanceAddressReturned)
+    emitter.removeListener(KEEPER_RETURNED, this.keeperProfileReturned)
+    emitter.removeListener(LIQUIDITY_PAIRS_RETURNED, this.liquidityPairsReturned)
+    emitter.removeListener(JOB_BOND_UNBOND_RETURNED, this.jobBondUnbondReturned)
   };
+
+  jobBondUnbondReturned = (jobProfile) => {
+    this.setState({ job: jobProfile })
+  }
+
+  liquidityPairsReturned = () => {
+    const liquidityPairs = store.getStore('liquidityPairs')
+    const selectedLiquidityPair = liquidityPairs.length > 0 ? liquidityPairs[0] : null
+    this.setState({
+      loading: false,
+      liquidityPairs: liquidityPairs,
+      liquidityPair: selectedLiquidityPair ? selectedLiquidityPair.symbol : '',
+      selectedLiquidityPair: selectedLiquidityPair
+    })
+    emitter.emit(STOP_LOADING, GET_LIQUIDITY_PAIRS)
+
+    let jobAddress = (this.props && this.props.match && this.props.match.params && this.props.match.params.address) ? this.props.match.params.address : null
+    dispatcher.dispatch({ type: GET_JOB_BOND_UNBOND, content: { address: jobAddress } })
+  }
 
   connectionConnected = () => {
     const account = store.getStore('account')
@@ -316,12 +364,16 @@ class Job extends Component {
 
   loadData = () =>{
     emitter.emit(START_LOADING, GET_JOB_PROFILE)
+    emitter.emit(START_LOADING, GET_KEEPER)
+    emitter.emit(START_LOADING, GET_LIQUIDITY_PAIRS)
 
     let jobAddress = this.getJobAddress();
 
     dispatcher.dispatch({ type: GET_JOB_PROFILE, content: { address: jobAddress } })
     dispatcher.dispatch({ type: GET_GOVERNANCE_ADDRESS, content: {} })
     dispatcher.dispatch({ type: GET_BALANCES, content: {} })
+    dispatcher.dispatch({ type: GET_KEEPER, content: {} })
+    dispatcher.dispatch({ type: GET_LIQUIDITY_PAIRS, content: {} })
   }
 
   errorReturned = (source) => {
@@ -333,9 +385,20 @@ class Job extends Component {
     this.setState({ keeperAsset: store.getStore('keeperAsset') })
   }
 
+  keeperProfileReturned = () => {
+    emitter.emit(STOP_LOADING, GET_KEEPER)
+
+    this.setState({
+      keeperAsset: store.getStore('keeperAsset'),
+      loading: false
+    })
+  }
+
   jobProfileReturned = (jobProfile) => {
     emitter.emit(STOP_LOADING, GET_JOB_PROFILE)
     this.setState({ job: jobProfile })
+
+    dispatcher.dispatch({ type: GET_JOB_BOND_UNBOND, content: { address: jobProfile.address } })
   }
 
   addLiquidityToJobReturned = () => {
@@ -344,7 +407,7 @@ class Job extends Component {
   }
 
   removeLiquidityFromJobReturned = () => {
-    this.setState({ loading: false, removeLiquidityAmount: '' })
+    this.setState({ loading: false })
     emitter.emit(STOP_LOADING, REMOVE_LIQUIDITY_FROM_JOB)
   }
 
@@ -354,7 +417,7 @@ class Job extends Component {
   }
 
   unbondLiquidityFromJobReturned = () => {
-    this.setState({ loading: false })
+    this.setState({ loading: false, unbondLiquidityAmount: '' })
     emitter.emit(STOP_LOADING, UNBOND_LIQUIDITY_FROM_JOB)
   }
 
@@ -395,13 +458,14 @@ class Job extends Component {
   render() {
     const { classes } = this.props;
     const {
+      selectedLiquidityPair,
       keeperAsset,
       job,
       loading,
       addLiquidityAmount,
       addLiquidityAmountError,
-      removeLiquidityAmount,
-      removeLiquidityAmountError,
+      unbondLiquidityAmount,
+      unbondLiquidityAmountError
     } = this.state
     let state = 'Inactive'
     let stateClass = classes.stateNeutral
@@ -409,6 +473,26 @@ class Job extends Component {
     if(job.isJob) {
       state = 'Active'
       stateClass = classes.stateSuccess
+    }
+
+    let pendingLiquidityBonds = 0
+    let pendingLiquidityUnbonds = 0
+    let liquidityProvided = 0
+    let pendingLiquidityBondsTime = 0
+    let pendingLiquidityUnbondsTime = 0
+
+    if(selectedLiquidityPair && job.bondUnbondPairs) {
+      const sp = job.bondUnbondPairs.filter((p) => {
+        return p.symbol === selectedLiquidityPair.symbol
+      })
+
+      if(sp && sp.length > 0) {
+        pendingLiquidityBonds = sp[0].bonds
+        pendingLiquidityUnbonds = sp[0].unbonds
+        liquidityProvided = sp[0].provided
+        pendingLiquidityBondsTime = sp[0].bondsActivatable
+        pendingLiquidityUnbondsTime = sp[0].unbondsRemovable
+      }
     }
 
     return (
@@ -492,35 +576,41 @@ class Job extends Component {
             </div>
           }
           {
-            job && job.isJob && job.isLpFunded && this.isOwner() &&
+            job && job.isJob &&
+            <div className={ classes.jobMetadata }>
+              <div className={ classes.jobInfo }>
+                <Typography variant='h4'>{ pendingLiquidityBonds } { selectedLiquidityPair ? selectedLiquidityPair.symbol : '' }</Typography>
+                { (pendingLiquidityBondsTime > 0) && <Typography variant='h4'>{ moment(pendingLiquidityBondsTime*1000).format("YYYY/MM/DD kk:mm") }</Typography> }
+                <Typography variant='h4' className={ classes.textColorSecondary }>Pending Bonds</Typography>
+              </div>
+              <div className={ classes.jobInfo }>
+                <Typography variant='h4'>{ pendingLiquidityUnbonds } { selectedLiquidityPair ? selectedLiquidityPair.symbol : '' }</Typography>
+                { (pendingLiquidityUnbondsTime > 0) && <Typography variant='h4'>{ moment(pendingLiquidityUnbondsTime*1000).format("YYYY/MM/DD kk:mm") }</Typography> }
+                <Typography variant='h4' className={ classes.textColorSecondary }>Pending Unbonds</Typography>
+              </div>
+            </div>
+          }
+          {
+            job && job.isJob &&
             <div className={ classes.liquidityContainer }>
               <div className={ classes.field }>
-                <div className={ classes.fieldTitle }>
-                  <Typography variant='h4'>Provide liquidity</Typography>
-                </div>
                 <div className={ classes.inputContainer }>
-                  <Typography variant='h6' className={ classes.balance } onClick={ () => { this.maxClicked('addLiquidityAmount') } }>{ keeperAsset.balance.toFixed(4) } { keeperAsset.symbol }</Typography>
+                  <Typography variant='h6' className={ classes.balance } onClick={ () => { this.maxClicked('addLiquidityAmount') } }>{ selectedLiquidityPair ? selectedLiquidityPair.balance.toFixed(4) : '0.0000' }{" LP"}</Typography>
                   <TextField
                     fullwidth
                     disabled={ loading }
                     id='addLiquidityAmount'
-                    variant='outlined'
                     color='primary'
                     className={ classes.textField }
-                    placeholder='Liquidity amount'
+                    label='Provide liquidity'
                     value={ addLiquidityAmount }
                     error={ addLiquidityAmountError }
                     onChange={ this.onAmountChange }
                     InputProps={{
                       className: classes.inputField,
-                      startAdornment: <InputAdornment position="start" className={ classes.inputAdornment }>
-                        <img src={ require('../../assets/tokens/'+keeperAsset.logo) } width="30px" alt="" />
-                      </InputAdornment>
+                      startAdornment: this.renderAssetSelect()
                     }}
                   />
-                </div>
-                <div>
-                  <Typography className={ classes.note } variant='h4'>* 2 day liquidity bonding time</Typography>
                 </div>
                 <div className={ classes.buttonContainer}>
                   <Button
@@ -530,7 +620,7 @@ class Job extends Component {
                     disabled={ loading }
                     onClick={ () => { this.onAddLiquidity() } }
                   >
-                    <Typography variant={ 'h4'}>Provide Liquidity</Typography>
+                    Provide Liquidity
                   </Button>
                 </div>
               </div>
@@ -538,32 +628,23 @@ class Job extends Component {
 
               </div>
               <div className={ classes.field }>
-                <div className={ classes.fieldTitle }>
-                  <Typography variant='h4'>Remove liquidity</Typography>
-                </div>
                 <div className={ classes.inputContainer }>
-                  <Typography variant='h6' className={ classes.balance } onClick={ () => { this.maxClicked('removeLiquidityAmount') } }>{ keeperAsset.bonds.toFixed(4) } { keeperAsset.symbol }</Typography>
+                  <Typography variant='h6' className={ classes.balance } onClick={ () => { this.maxClicked('unbondLiquidityAmount') } }>{ liquidityProvided } { selectedLiquidityPair ? 'LP' : '' }</Typography>
                   <TextField
                     fullwidth
                     disabled={ loading }
-                    id='removeLiquidityAmount'
-                    variant='outlined'
+                    id='unbondLiquidityAmount'
                     color='primary'
                     className={ classes.textField }
-                    placeholder='Liquidity amount'
-                    value={ removeLiquidityAmount }
-                    error={ removeLiquidityAmountError }
+                    label='Unbond liquidity'
+                    value={ unbondLiquidityAmount }
+                    error={ unbondLiquidityAmountError }
                     onChange={ this.onAmountChange }
                     InputProps={{
                       className: classes.inputField,
-                      startAdornment: <InputAdornment position="start" className={ classes.inputAdornment }>
-                        <img src={ require('../../assets/tokens/'+keeperAsset.logo) } width="30px" alt="" />
-                      </InputAdornment>
+                      startAdornment: this.renderAssetSelect()
                     }}
                   />
-                </div>
-                <div>
-                  <Typography className={ classes.note } variant='h4'>* 14 day liquidity unbonding time</Typography>
                 </div>
                 <div className={ classes.buttonContainer}>
                   <Button
@@ -571,16 +652,16 @@ class Job extends Component {
                     variant="outlined"
                     color="secondary"
                     disabled={ loading }
-                    onClick={ () => { this.onRemoveLiquidity() } }
+                    onClick={ () => { this.onUnbondLiquidity() } }
                   >
-                    <Typography variant={ 'h4'}>Remove Liquidity</Typography>
+                    Unbond Liquidity
                   </Button>
                 </div>
               </div>
             </div>
           }
           {
-            job && job.isJob && job.isLpFunded &&
+            job && job.isJob &&
             <div className={ classes.liquidityContainer }>
               <div className={ classes.field }>
                 <div className={ classes.buttonContainer}>
@@ -591,7 +672,7 @@ class Job extends Component {
                     disabled={ loading }
                     onClick={ () => { this.onApplyCredit() } }
                   >
-                    <Typography variant={ 'h4'}>Apply Credit</Typography>
+                    Apply Credit
                   </Button>
                 </div>
               </div>
@@ -605,9 +686,9 @@ class Job extends Component {
                     variant="outlined"
                     color="secondary"
                     disabled={ loading }
-                    onClick={ () => { this.onUnbondLiquidity() } }
+                    onClick={ () => { this.onRemoveLiquidity() } }
                   >
-                    <Typography variant={ 'h4'}>Unbond Liquidity</Typography>
+                  Remove Liquidity
                   </Button>
                 </div>
               </div>
@@ -633,7 +714,7 @@ class Job extends Component {
     if(job._docs) {
       return (<div className={ classes.jobPreviewContainer }>
           <div className={ classes.jobInfo }>
-            <Typography variant='h4'><a href={job._docs} target='_blank' className={ classes.textColor }>{ job._docs ? job._docs : 'Not set' }</a></Typography>
+            <Typography variant='h4'><a href={job._docs} target='_blank' rel="noopener noreferrer" className={ classes.textColor }>{ job._docs ? job._docs : 'Not set' }</a></Typography>
             <Typography variant='h4' className={ classes.textColorSecondary }>Documentation</Typography>
           </div>
           { job.fileContent &&
@@ -648,7 +729,72 @@ class Job extends Component {
     } else {
       return null
     }
+  }
 
+
+  renderAssetSelect = () => {
+    const { loading, liquidityPairs, liquidityPair } = this.state
+    const { classes } = this.props
+
+    return (
+      <TextField
+        id={ 'liquidityPair' }
+        name={ 'liquidityPair' }
+        select
+        value={ liquidityPair }
+        onChange={ this.onAssetSelectChange }
+        SelectProps={{
+          native: false,
+        }}
+        fullWidth
+        disabled={ loading }
+        placeholder={ 'Select' }
+        className={ classes.assetSelectRoot }
+      >
+        { liquidityPairs ? liquidityPairs.map(this.renderAssetOption) : null }
+      </TextField>
+    )
+  }
+
+  renderAssetOption = (option) => {
+    const { classes } = this.props
+
+    return (
+      <MenuItem key={option.symbol} value={option.symbol} className={ classes.assetSelectMenu }>
+        <div className={ classes.assetSelectIcon }>
+          <img
+            alt=""
+            src={ this.getLogoForAsset(option) }
+            height="30px"
+          />
+        </div>
+        <div className={ classes.assetSelectIconName }>
+          <Typography variant='h4'>{ option.symbol }</Typography>
+        </div>
+      </MenuItem>
+    )
+  }
+
+  getLogoForAsset = (asset) => {
+    try {
+      return require('../../assets/tokens/'+asset.symbol+'-logo.png')
+    } catch {
+      return require('../../assets/tokens/unknown-logo.png')
+    }
+  }
+
+  onAssetSelectChange = (event) => {
+    let val = []
+    val[event.target.name] = event.target.value
+    this.setState(val)
+
+    const thePair = this.state.liquidityPairs.filter((pair) => {
+      return pair.symbol === event.target.value
+    })
+
+    this.setState({
+      selectedLiquidityPair: thePair[0]
+    })
   }
 
   navigateEtherscan = (address) => {
@@ -666,12 +812,28 @@ class Job extends Component {
       return false
     }
 
-    const { keeperAsset, job } = this.state
-    if(event.target.id === 'addLiquidityAmount' && event.target.value > keeperAsset.balance) {
-      event.target.value = keeperAsset.balance.toString()
+    const { job, selectedLiquidityPair } = this.state
+    if(event.target.id === 'addLiquidityAmount' && event.target.value > selectedLiquidityPair.balance) {
+      event.target.value = selectedLiquidityPair.balance.toString()
     }
-    if(event.target.id === 'addLiquidityAmount' && event.target.value > job.credits) {
-      event.target.value = job.credits.toString()
+    if(event.target.id === 'removeLiquidityAmount' && event.target.value > job.unbonds) {
+      event.target.value = job.unbonds.toString()
+    }
+    if(event.target.id === 'unbondLiquidityAmount' && event.target.value > job.bonds) {
+
+      let liquidityProvided = 0
+
+      if(selectedLiquidityPair && job.bondUnbondPairs) {
+        const sp = job.bondUnbondPairs.filter((p) => {
+          return p.symbol === selectedLiquidityPair.symbol
+        })
+
+        if(sp && sp.length > 0) {
+          liquidityProvided = sp[0].provided
+        }
+      }
+
+      event.target.value = liquidityProvided.toString()
     }
 
     let val = []
@@ -682,15 +844,31 @@ class Job extends Component {
   maxClicked = (type) => {
     const {
       job,
-      keeperAsset
+      selectedLiquidityPair
     } = this.state
 
     switch (type) {
       case 'addLiquidityAmount':
-        this.setState({ addLiquidityAmount: keeperAsset.balance.toString() })
+        this.setState({ addLiquidityAmount: selectedLiquidityPair ? selectedLiquidityPair.balance.toString() : '' })
         break;
       case 'removeLiquidityAmount':
-        this.setState({ removeLiquidityAmount: job.credits.toString() })
+        this.setState({ removeLiquidityAmount: job.unbonds.toString() })
+        break;
+      case 'unbondLiquidityAmount':
+
+        let liquidityProvided = 0
+
+        if(selectedLiquidityPair && job.bondUnbondPairs) {
+          const sp = job.bondUnbondPairs.filter((p) => {
+            return p.symbol === selectedLiquidityPair.symbol
+          })
+
+          if(sp && sp.length > 0) {
+            liquidityProvided = sp[0].provided
+          }
+        }
+
+        this.setState({ unbondLiquidityAmount: liquidityProvided.toString() })
         break;
       default:
     }
@@ -702,7 +880,7 @@ class Job extends Component {
 
   onAddLiquidity = () => {
     this.setState({ addressError: false, addLiquidityAmountError: false })
-    const { job, addLiquidityAmount } = this.state
+    const { job, addLiquidityAmount, selectedLiquidityPair } = this.state
 
     let error = false
 
@@ -711,45 +889,70 @@ class Job extends Component {
       error = true
     }
 
-    if(!error) {
-      emitter.emit(START_LOADING, ADD_LIQUIDITY_TO_JOB)
-      this.setState({ loading: true })
-      dispatcher.dispatch({ type: ADD_LIQUIDITY_TO_JOB, content: { address: job.address, addLiquidityAmount: addLiquidityAmount  } })
-    }
-  }
-
-  onRemoveLiquidity = () => {
-    this.setState({ addressError: false, removeLiquidityAmountError: false })
-    const { job, removeLiquidityAmount } = this.state
-
-    let error = false
-
-    if(!removeLiquidityAmount || removeLiquidityAmount === '') {
-      this.setState({ removeLiquidityAmountError: 'Liquidity amount is required' })
+    if(!selectedLiquidityPair) {
       error = true
     }
 
     if(!error) {
       emitter.emit(START_LOADING, ADD_LIQUIDITY_TO_JOB)
       this.setState({ loading: true })
-      dispatcher.dispatch({ type: REMOVE_LIQUIDITY_FROM_JOB, content: { address: job.address, removeLiquidityAmount: removeLiquidityAmount  } })
+      dispatcher.dispatch({ type: ADD_LIQUIDITY_TO_JOB, content: { address: job.address, addLiquidityAmount: addLiquidityAmount, selectedLiquidityPair: selectedLiquidityPair } })
+    }
+  }
+
+  onRemoveLiquidity = () => {
+    this.setState({ addressError: false })
+    const { job, selectedLiquidityPair } = this.state
+
+    let error = false
+
+    if(!selectedLiquidityPair) {
+      error = true
+    }
+
+    if(!error) {
+      emitter.emit(START_LOADING, REMOVE_LIQUIDITY_FROM_JOB)
+      this.setState({ loading: true })
+      dispatcher.dispatch({ type: REMOVE_LIQUIDITY_FROM_JOB, content: { address: job.address, selectedLiquidityPair: selectedLiquidityPair  } })
     }
   }
 
   onApplyCredit = () => {
-    const { job } = this.state
+    const { job, selectedLiquidityPair } = this.state
 
-    emitter.emit(START_LOADING, APPLY_CREDIT_TO_JOB)
-    this.setState({ loading: true })
-    dispatcher.dispatch({ type: APPLY_CREDIT_TO_JOB, content: { address: job.address } })
+    let error = false
+
+    if(!selectedLiquidityPair) {
+      error = true
+    }
+
+    if(!error) {
+      emitter.emit(START_LOADING, APPLY_CREDIT_TO_JOB)
+      this.setState({ loading: true })
+      dispatcher.dispatch({ type: APPLY_CREDIT_TO_JOB, content: { address: job.address, selectedLiquidityPair: selectedLiquidityPair } })
+    }
   }
 
   onUnbondLiquidity = () => {
-    const { job } = this.state
+    this.setState({ addressError: false, unbondLiquidityAmountError: false })
+    const { job, unbondLiquidityAmount, selectedLiquidityPair } = this.state
 
-    emitter.emit(START_LOADING, UNBOND_LIQUIDITY_FROM_JOB)
-    this.setState({ loading: true })
-    dispatcher.dispatch({ type: UNBOND_LIQUIDITY_FROM_JOB, content: { address: job.address } })
+    let error = false
+
+    if(!unbondLiquidityAmount || unbondLiquidityAmount === '') {
+      this.setState({ unbondLiquidityAmountError: 'Liquidity amount is required' })
+      error = true
+    }
+
+    if(!selectedLiquidityPair) {
+      error = true
+    }
+
+    if(!error) {
+      emitter.emit(START_LOADING, UNBOND_LIQUIDITY_FROM_JOB)
+      this.setState({ loading: true })
+      dispatcher.dispatch({ type: UNBOND_LIQUIDITY_FROM_JOB, content: { address: job.address, unbondLiquidityAmount: unbondLiquidityAmount, selectedLiquidityPair: selectedLiquidityPair } })
+    }
   }
 
   onAddCredits = () => {
