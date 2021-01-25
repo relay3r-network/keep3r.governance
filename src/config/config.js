@@ -6,7 +6,7 @@ const config = {
   githubAPI: process.env.REACT_APP_GITHUB_API,
   etherscanAPI: process.env.REACT_APP_ETHERSCAN_API,
   etherscanAPIKey: process.env.REACT_APP_ETHERSCAN_KEY,
-
+  supportedChainIDs :[1],
   liquidityAddress: '0x375Da3e307Ef2E1A9D9e1516f80738Ca52cb7B85',
   governanceAddress: '0x0bA94c028240Ed459E0982cE8406385a79BFab35',
   rewardsAddress: '0x0E3EF895c59E7Db27214AB5bbf56347cE115A3f4',

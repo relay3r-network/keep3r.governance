@@ -77,6 +77,8 @@ import {
   VOTE_FOR_RETURNED,
   WITHDRAW_BOND,
   WITHDRAW_BOND_RETURNED,
+  GET_CHAIN_ID,
+  CHAIN_ID_RETURNED
 } from '../constants';
 import Web3 from 'web3';
 import {injected} from "./connectors";
@@ -114,6 +116,7 @@ class Store {
       },
       gasSpeed: 'fast',
       currentBlock: 0,
+      chainId:1,
       connectorsByName: [
         {
           name: 'Metamask',
@@ -238,6 +241,9 @@ class Store {
           case GET_CURRENT_BLOCK:
             this.getCurrentBlock(payload);
             break;
+          case GET_CHAIN_ID:
+            this.getChainId();
+            break;
           case GET_REWARDS_AVAILABLE:
             this.getRewardsAvailable(payload);
             break;
@@ -250,7 +256,6 @@ class Store {
           case VOTE_AGAINST:
             this.voteAgainst(payload);
             break;
-
           case GET_KEEPER:
             this.getKeeper(payload);
             break;
@@ -381,6 +386,9 @@ class Store {
 
 
   _getBalance = async (web3, asset, account, callback) => {
+    if (!config.supportedChainIDs.includes(web3.currentProvider.networkVersion)){
+      return callback("Unsupported chainID " + web3.currentProvider.networkVersion)
+    }
     try {
       if(asset.address === 'Ethereum') {
         const eth_balance = web3.utils.fromWei(await web3.eth.getBalance(account.address), "ether");
@@ -679,7 +687,7 @@ class Store {
       }
     });
 
-    const chainId = web3.currentProvider.networkVersion;
+    const chainId = store.getStore("chainId");
 
     const domainData = {
       name: func,
@@ -928,6 +936,30 @@ class Store {
 
     window.setTimeout(() => {
       emitter.emit(CURRENT_BLOCK_RETURNED)
+    }, 100)
+  }
+
+  getChainId = async () => {
+    const web3 = await this._getWeb3Provider()
+
+    if(!web3) {
+      emitter.emit(CHAIN_ID_RETURNED)
+      return
+    }
+
+    const chainId = web3.currentProvider.networkVersion;
+    store.setStore({ chainId: chainId })
+    console.log(chainId)
+    console.log(config.supportedChainIDs)
+    if(!config.supportedChainIDs.includes(parseInt(chainId))){
+
+      //this is a unsupported network,emit error
+      emitter.emit(SNACKBAR_ERROR, "Using unsupported chainID " + chainId);
+      return emitter.emit(ERROR, GET_CHAIN_ID);
+    }
+
+    window.setTimeout(() => {
+      emitter.emit(CHAIN_ID_RETURNED)
     }, 100)
   }
 

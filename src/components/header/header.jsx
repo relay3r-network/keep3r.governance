@@ -17,7 +17,9 @@ import {
   GET_GAS_PRICES,
   GAS_PRICES_RETURNED,
   START_LOADING,
-  STOP_LOADING
+  STOP_LOADING,
+  GET_CHAIN_ID,
+  CHAIN_ID_RETURNED
 } from '../../constants'
 
 import Account from '../account';
@@ -235,6 +237,7 @@ class Header extends Component {
     emitter.on(ACCOUNT_CHANGED, this.connectionConnected);
     emitter.on(BALANCES_RETURNED, this.balancesReturned);
     emitter.on(GAS_PRICES_RETURNED, this.gasPricesReturned);
+    emitter.on(CHAIN_ID_RETURNED,this.chainIdReturned);
   }
 
   componentWillUnmount() {
@@ -243,12 +246,22 @@ class Header extends Component {
     emitter.removeListener(ACCOUNT_CHANGED, this.connectionConnected);
     emitter.removeListener(BALANCES_RETURNED, this.balancesReturned);
     emitter.removeListener(GAS_PRICES_RETURNED, this.gasPricesReturned);
+    emitter.removeListener(CHAIN_ID_RETURNED,this.chainIdReturned);
   }
 
   connectionConnected = () => {
     this.setState({ account: store.getStore('account') })
 
+    emitter.emit(START_LOADING,GET_CHAIN_ID);
+    dispatcher.dispatch({ type: GET_CHAIN_ID, content: {} })
+
+  }
+
+  chainIdReturned = () => {
+    emitter.emit(STOP_LOADING, GET_CHAIN_ID)
+
     emitter.emit(START_LOADING, GET_BALANCES)
+    emitter.emit(START_LOADING, GET_GAS_PRICES)
 
     dispatcher.dispatch({ type: GET_BALANCES, content: {} })
     dispatcher.dispatch({ type: GET_GAS_PRICES, content: {} })
