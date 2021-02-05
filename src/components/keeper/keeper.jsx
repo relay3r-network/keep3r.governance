@@ -34,6 +34,8 @@ import {
   CONNECTION_CONNECTED,
   ACCOUNT_CHANGED,
   GET_CURRENT_BLOCK,
+  GET_CHAIN_ID,
+  CHAIN_ID_RETURNED,
   CURRENT_BLOCK_RETURNED,
   GET_KEEPER,
   KEEPER_RETURNED,
@@ -50,7 +52,6 @@ import {
   WITHDRAW_BOND,
   WITHDRAW_BOND_RETURNED,
   SWAP_APPROVE,
-  SWAP_APPROVED,
   SWAP_EXECUTE,
   SWAP_APPROVE_RETURNED,
   SWAP_EXECUTE_RETURNED, TRANSFER_RIGHTS, TRANSFER_RIGHTS_RETURNED
@@ -281,19 +282,14 @@ class Keeper extends Component {
       swapped:false,
       transferTo: "",
     };
-
-    emitter.emit(START_LOADING, GET_KEEPER);
-    emitter.emit(START_LOADING, GET_JOBS);
-    emitter.emit(START_LOADING, GET_KEEPERS);
-    emitter.emit(START_LOADING, GET_CURRENT_BLOCK);
-    dispatcher.dispatch({ type: GET_KEEPER, content: {} });
-    dispatcher.dispatch({ type: GET_JOBS, content: {} });
-    dispatcher.dispatch({ type: GET_KEEPERS, content: {} });
-    dispatcher.dispatch({ type: GET_CURRENT_BLOCK, content: {} });
+    //First get chain id before any other data
+    emitter.emit(START_LOADING, GET_CHAIN_ID);
+    dispatcher.dispatch({ type: GET_CHAIN_ID, content: {} });
   }
 
   componentWillMount() {
     emitter.on(ERROR, this.errorReturned);
+    emitter.on(CHAIN_ID_RETURNED,this.chainIdReturned);
     emitter.on(KEEPER_RETURNED, this.keeperProfileReturned);
     emitter.on(JOBS_RETURNED, this.jobsReturned);
     emitter.on(KEEPERS_RETURNED, this.keepersReturned);
@@ -322,20 +318,17 @@ class Keeper extends Component {
     emitter.removeListener(WITHDRAW_BOND_RETURNED, this.withdrawBondReturned);
     emitter.removeListener(CURRENT_BLOCK_RETURNED, this.currentBlockReturned);
     emitter.removeListener(TRANSFER_RIGHTS_RETURNED, this.transferRightsReturned)
+    emitter.removeListener(CHAIN_ID_RETURNED, this.chainIdReturned)
   }
 
   connectionConnected = () => {
-    emitter.emit(START_LOADING, GET_KEEPER);
-    emitter.emit(START_LOADING, GET_JOBS);
-    emitter.emit(START_LOADING, GET_KEEPERS);
+    emitter.emit(START_LOADING, GET_CHAIN_ID);
     emitter.emit(START_LOADING, GET_CURRENT_BLOCK);
-    emitter.emit(START_LOADING, SWAP_APPROVED);
+
     //Finally get the approval status
-    dispatcher.dispatch({ type: SWAP_APPROVED, content: {} });
-    dispatcher.dispatch({ type: GET_KEEPER, content: {} });
-    dispatcher.dispatch({ type: GET_JOBS, content: {} });
-    dispatcher.dispatch({ type: GET_KEEPERS, content: {} });
+    dispatcher.dispatch({ type: GET_CHAIN_ID, content: {} });
     dispatcher.dispatch({ type: GET_CURRENT_BLOCK, content: {} });
+
   };
 
   errorReturned = (source) => {
@@ -352,6 +345,17 @@ class Keeper extends Component {
     });
   };
 
+  chainIdReturned = () => {
+    //Start loading and dispatch only if we got supported chainid
+    emitter.emit(START_LOADING, GET_KEEPER);
+    emitter.emit(START_LOADING, GET_JOBS);
+    emitter.emit(START_LOADING, GET_KEEPERS);
+
+    dispatcher.dispatch({ type: GET_KEEPER, content: {} });
+    dispatcher.dispatch({ type: GET_JOBS, content: {} });
+    dispatcher.dispatch({ type: GET_KEEPERS, content: {} });
+  };
+
   jobsReturned = () => {
     emitter.emit(STOP_LOADING, GET_JOBS);
     this.setState({
@@ -362,6 +366,7 @@ class Keeper extends Component {
   };
 
   keepersReturned = () => {
+    emitter.emit(STOP_LOADING, GET_CHAIN_ID)
     emitter.emit(STOP_LOADING, GET_KEEPERS);
     this.setState({ keepers: store.getStore("keepers") });
   };

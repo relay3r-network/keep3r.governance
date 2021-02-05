@@ -17,7 +17,9 @@ import {
   GET_GAS_PRICES,
   GAS_PRICES_RETURNED,
   START_LOADING,
-  STOP_LOADING
+  STOP_LOADING,
+  GET_CHAIN_ID,
+  CHAIN_ID_RETURNED
 } from '../../constants'
 
 import Account from '../account';
@@ -235,6 +237,7 @@ class Header extends Component {
     emitter.on(ACCOUNT_CHANGED, this.connectionConnected);
     emitter.on(BALANCES_RETURNED, this.balancesReturned);
     emitter.on(GAS_PRICES_RETURNED, this.gasPricesReturned);
+    emitter.on(CHAIN_ID_RETURNED,this.chainIdReturned);
   }
 
   componentWillUnmount() {
@@ -243,12 +246,21 @@ class Header extends Component {
     emitter.removeListener(ACCOUNT_CHANGED, this.connectionConnected);
     emitter.removeListener(BALANCES_RETURNED, this.balancesReturned);
     emitter.removeListener(GAS_PRICES_RETURNED, this.gasPricesReturned);
+    emitter.removeListener(CHAIN_ID_RETURNED,this.chainIdReturned);
   }
 
   connectionConnected = () => {
     this.setState({ account: store.getStore('account') })
 
+    emitter.emit(START_LOADING,GET_CHAIN_ID);
+    dispatcher.dispatch({ type: GET_CHAIN_ID, content: {} })
+
+  }
+
+  chainIdReturned = () => {
+
     emitter.emit(START_LOADING, GET_BALANCES)
+    emitter.emit(START_LOADING, GET_GAS_PRICES)
 
     dispatcher.dispatch({ type: GET_BALANCES, content: {} })
     dispatcher.dispatch({ type: GET_GAS_PRICES, content: {} })
@@ -267,6 +279,7 @@ class Header extends Component {
 
   gasPricesReturned = () => {
     emitter.emit(STOP_LOADING, GET_GAS_PRICES)
+    emitter.emit(STOP_LOADING, GET_CHAIN_ID)
     this.setState({ gasPrices: store.getStore('gasPrices') })
   }
 
@@ -336,8 +349,8 @@ class Header extends Component {
 
     return (
       <div className={ classes.accountDetailsSection }>
+        <img  className={ classes.accountDetailsAddress } src= {parseInt(store.getStore("chainId")) === 1 ? require("../../assets/eth-logo.png") : require("../../assets/bnb-logo.png")} alt="network" width={ parseInt(store.getStore("chainId")) === 1 ? "46px" : "55px"} height="30px"></img>
         <Typography className={ classes.accountDetailsBalance } variant='h4'>{ (keeperAsset && keeperAsset.balance) ? keeperAsset.balance.toFixed(2) : '0' } { keeperAsset ? keeperAsset.symbol : '' }</Typography>
-        <Typography className={ classes.accountDetailsBalance } onClick={ this.currencyClicked } variant='h4'>{ (keeperAsset && keeperAsset.currentVotes && keeperAsset.currentVotes > 0) ? parseFloat(keeperAsset.currentVotes).toFixed(2) : '0' } { keeperAsset ? keeperAsset.voteSymbol : '' }</Typography>
         <Typography className={ classes.accountDetailsAddress } onClick={ this.addressClicked } variant='h4'>{ address } <div className={ classes.connectedDot }></div></Typography>
       </div>
     )

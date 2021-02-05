@@ -57,7 +57,6 @@ import {
   STAKE_RETURNED,
   SWAP_APPROVE,
   SWAP_APPROVE_RETURNED,
-  SWAP_APPROVED,
   SWAP_EXECUTE,
   SWAP_EXECUTE_RETURNED,
   TRANSFER_RIGHTS,
@@ -77,6 +76,8 @@ import {
   VOTE_FOR_RETURNED,
   WITHDRAW_BOND,
   WITHDRAW_BOND_RETURNED,
+  GET_CHAIN_ID,
+  CHAIN_ID_RETURNED
 } from '../constants';
 import Web3 from 'web3';
 import {injected} from "./connectors";
@@ -114,6 +115,7 @@ class Store {
       },
       gasSpeed: 'fast',
       currentBlock: 0,
+      chainId:1,
       connectorsByName: [
         {
           name: 'Metamask',
@@ -153,7 +155,7 @@ class Store {
         type: 'pool'
       },
       rewardAsset: {
-        address: config.rewardsAddress,
+        address: config.rewardsAddress[1],
         abi: RewardsABI,
         symbol: 'KBD',
         name: 'Liquidity Income Delegate',
@@ -163,7 +165,7 @@ class Store {
         type: 'reward'
       },
       keeperAsset: {
-        address: config.keeperAddress,
+        address: config.keeperAddress[1],
         abi: KeeperABI,
         symbol: 'RLR',
         name: 'Relayer',
@@ -238,6 +240,9 @@ class Store {
           case GET_CURRENT_BLOCK:
             this.getCurrentBlock(payload);
             break;
+          case GET_CHAIN_ID:
+            this.getChainId();
+            break;
           case GET_REWARDS_AVAILABLE:
             this.getRewardsAvailable(payload);
             break;
@@ -250,7 +255,6 @@ class Store {
           case VOTE_AGAINST:
             this.voteAgainst(payload);
             break;
-
           case GET_KEEPER:
             this.getKeeper(payload);
             break;
@@ -271,9 +275,6 @@ class Store {
             break;
           case WITHDRAW_BOND:
             this.withdrawBond(payload);
-            break;
-          case SWAP_APPROVED:
-            this.getIfApprovedForSwap();
             break;
           case SWAP_APPROVE:
             this.approveSwap();
@@ -381,6 +382,9 @@ class Store {
 
 
   _getBalance = async (web3, asset, account, callback) => {
+    if (!config.supportedChainIDs.includes(web3.currentProvider.networkVersion)){
+      return callback("Unsupported chainID " + web3.currentProvider.networkVersion)
+    }
     try {
       if(asset.address === 'Ethereum') {
         const eth_balance = web3.utils.fromWei(await web3.eth.getBalance(account.address), "ether");
@@ -474,35 +478,12 @@ class Store {
       })
   }
 
-  getIfApprovedForSwap = async () => {
-    let keeperAsset = store.getStore('keeperAsset')
-    const account = store.getStore('account')
-    const web3 = await this._getWeb3Provider()
-    if(!web3) {
-      emitter.emit(SWAP_APPROVE_RETURNED, {})
-      return
-    }
-    else{
-      let keeperData = await this._getKeeperData(web3, keeperAsset, account.address)
-      keeperData.contractLegacy.address = keeperData.contractLegacy._address
-      this._checkApproval(keeperData.contractLegacy, account, keeperData.extendedBalanceRLRV2, config.swapAddress, (err) => {
-        if(err) {
-          console.error(err)
-          emitter.emit(SNACKBAR_ERROR, err)
-          return emitter.emit(ERROR, SWAP_APPROVED)
-        }
-        else
-          return emitter.emit(SWAP_APPROVE_RETURNED,null)
-      })
-    }
-  }
-
   stake = (payload) => {
     const account = store.getStore('account')
     const liquidityAsset = store.getStore('liquidityAsset')
     const { amount } = payload.content
 
-    this._checkApproval(liquidityAsset, account, amount, config.rewardsAddress, (err) => {
+    this._checkApproval(liquidityAsset, account, amount, config.rewardsAddress[store.getStore("chainId")], (err) => {
       if(err) {
         emitter.emit(SNACKBAR_ERROR, err)
         return emitter.emit(ERROR, STAKE)
@@ -523,7 +504,7 @@ class Store {
     const web3 = await this._getWeb3Provider();
     const amountToSend = (amount*10**asset.decimals).toFixed(0)
 
-    const rewardsContract = new web3.eth.Contract(RewardsABI, config.rewardsAddress)
+    const rewardsContract = new web3.eth.Contract(RewardsABI, config.rewardsAddress[web3.currentProvider.networkVersion])
     rewardsContract.methods.stake(amountToSend).send({ from: account.address, gasPrice: web3.utils.toWei(await this._getGasPrice(), 'gwei') })
       .on('transactionHash', function(hash){
         emitter.emit(TX_SUBMITTED, hash)
@@ -679,7 +660,7 @@ class Store {
       }
     });
 
-    const chainId = web3.currentProvider.networkVersion;
+    const chainId = store.getStore("chainId");
 
     const domainData = {
       name: func,
@@ -931,6 +912,30 @@ class Store {
     }, 100)
   }
 
+  getChainId = async () => {
+    const web3 = await this._getWeb3Provider()
+
+    if(!web3) {
+      emitter.emit(CHAIN_ID_RETURNED)
+      return
+    }
+
+    const chainId = web3.currentProvider.networkVersion;
+    store.setStore({ chainId: chainId })
+    console.log(chainId)
+    console.log(config.supportedChainIDs)
+    if(!config.supportedChainIDs.includes(parseInt(chainId))){
+
+      //this is a unsupported network,emit error
+      emitter.emit(SNACKBAR_ERROR, "Using unsupported chainID " + chainId);
+      return emitter.emit(ERROR, GET_CHAIN_ID);
+    }
+
+    window.setTimeout(() => {
+      emitter.emit(CHAIN_ID_RETURNED)
+    }, 100)
+  }
+
   getRewardsAvailable = async () => {
     try {
       const account = store.getStore('account')
@@ -968,7 +973,7 @@ class Store {
   _callGetReward = async (asset, account, amount, callback) => {
     const web3 = await this._getWeb3Provider();
 
-    const rewardsContract = new web3.eth.Contract(RewardsABI, config.rewardsAddress)
+    const rewardsContract = new web3.eth.Contract(RewardsABI, config.rewardsAddress[web3.currentProvider.networkVersion])
 
     rewardsContract.methods.getReward().send({ from: account.address, gasPrice: web3.utils.toWei(await this._getGasPrice(), 'gwei') })
       .on('transactionHash', function(hash){
@@ -1128,8 +1133,10 @@ class Store {
   _getKeeperData = async (web3, keeperAsset, address) => {
 
     try {
-      const keeperContract = new web3.eth.Contract(KeeperABI, config.keeperAddress)
-      const keeperContractLegacy = new web3.eth.Contract(KeeperABI, config.keeperAddressLegacy)
+      const ChainID = web3.currentProvider.networkVersion;
+      const isETHMainnet = parseInt(ChainID) === 1;
+      const keeperContract = new web3.eth.Contract(KeeperABI, config.keeperAddress[web3.currentProvider.networkVersion])
+      const keeperContractLegacy = new web3.eth.Contract(KeeperABI, config.keeperAddressLegacy[web3.currentProvider.networkVersion])
 
       keeperAsset.contract = keeperContract;
       keeperAsset.contractLegacy =keeperContractLegacy;
@@ -1137,11 +1144,13 @@ class Store {
       balance = balance/10**keeperAsset.decimals
       keeperAsset.balance = balance
       keeperAsset.extendedBalance = await keeperContract.methods.balanceOf(address).call({ })
+      if(isETHMainnet) {
+          //Get RLRV2 balance
+        let balanceRLRV2 = await keeperContractLegacy.methods.balanceOf(address).call({ })
+        keeperAsset.balanceRLRV2 =balanceRLRV2/10**keeperAsset.decimals
+        keeperAsset.extendedBalanceRLRV2 = balanceRLRV2
+      }
 
-      //Get RLRV2 balance
-      let balanceRLRV2 = await keeperContractLegacy.methods.balanceOf(address).call({ })
-      keeperAsset.balanceRLRV2 =balanceRLRV2/10**keeperAsset.decimals
-      keeperAsset.extendedBalanceRLRV2 = balanceRLRV2
 
       let bonds = await keeperContract.methods.bonds(address, keeperAsset.address).call({ })
       bonds = bonds/10**keeperAsset.decimals
@@ -1197,9 +1206,8 @@ class Store {
     }
 
     try {
-      const keeperContract = new web3.eth.Contract(KeeperABI, config.keeperAddress)
+      const keeperContract = new web3.eth.Contract(KeeperABI, config.keeperAddress[store.getStore("chainId")])
       const jobs = await keeperContract.methods.getJobs().call({ from: account.address });
-
       async.map(jobs, async (job, callback) => {
         let jobProfile = await this._getJobData(web3, keeperAsset, job, account)
         jobProfile.address = job
@@ -1234,7 +1242,7 @@ class Store {
     }
 
     try {
-      const keeperContract = new web3.eth.Contract(KeeperABI, config.keeperAddress)
+      const keeperContract = new web3.eth.Contract(KeeperABI, config.keeperAddress[web3.currentProvider.networkVersion])
 
       const keepers = await keeperContract.methods.getKeepers().call({ from: account.address })
 
@@ -1265,7 +1273,7 @@ class Store {
     const web3 = await this._getWeb3Provider();
     const keeperAsset = store.getStore('keeperAsset')
 
-    const keeperContract = new web3.eth.Contract(KeeperABI, config.keeperAddress)
+    const keeperContract = new web3.eth.Contract(KeeperABI, config.keeperAddress[web3.currentProvider.networkVersion])
 
     let amountToSend = (amount*10**keeperAsset.decimals).toFixed(0);
 
@@ -1318,7 +1326,7 @@ class Store {
     const web3 = await this._getWeb3Provider();
     const keeperAsset = store.getStore('keeperAsset')
 
-    const keeperContract = new web3.eth.Contract(KeeperABI, config.keeperAddress)
+    const keeperContract = new web3.eth.Contract(KeeperABI, config.keeperAddress[web3.currentProvider.networkVersion])
 
     let amountToSend = (amount*10**keeperAsset.decimals).toFixed(0);
 
@@ -1370,7 +1378,7 @@ class Store {
     const web3 = await this._getWeb3Provider();
     const keeperAsset = store.getStore('keeperAsset')
 
-    const keeperContract = new web3.eth.Contract(KeeperABI, config.keeperAddress)
+    const keeperContract = new web3.eth.Contract(KeeperABI, config.keeperAddress[web3.currentProvider.networkVersion])
 
     keeperContract.methods.activate(keeperAsset.address).send({ from: account.address, gasPrice: web3.utils.toWei(await this._getGasPrice(), 'gwei') })
       .on('transactionHash', function(hash){
@@ -1521,7 +1529,7 @@ class Store {
     const web3 = await this._getWeb3Provider();
     const keeperAsset = store.getStore('keeperAsset')
 
-    const keeperContract = new web3.eth.Contract(KeeperABI, config.keeperAddress)
+    const keeperContract = new web3.eth.Contract(KeeperABI, config.keeperAddress[web3.currentProvider.networkVersion])
 
 
     keeperContract.methods.withdraw(keeperAsset.address).send({ from: account.address, gasPrice: web3.utils.toWei(await this._getGasPrice(), 'gwei') })
@@ -1630,7 +1638,7 @@ class Store {
   _getGovernanceAddress = async () => {
     try {
       const web3 = await this._getWeb3Provider();
-      const jobRegistryContract = new web3.eth.Contract(JobRegistryABI, config.jobRegistryAddress)
+      const jobRegistryContract = new web3.eth.Contract(JobRegistryABI, config.jobRegistryAddress[store.getStore("chainId")])
 
       return await jobRegistryContract.methods.governance().call({})
     } catch(ex) {
@@ -1642,7 +1650,7 @@ class Store {
   _callAdd = async (account, address, name, docs, ipfs, callback) => {
     const web3 = await this._getWeb3Provider();
 
-    const jobRegistryContract = new web3.eth.Contract(JobRegistryABI, config.jobRegistryAddress)
+    const jobRegistryContract = new web3.eth.Contract(JobRegistryABI, config.jobRegistryAddress[store.getStore("chainId")])
 
     jobRegistryContract.methods.add(address, name, ipfs, docs).send({ from: account.address, gasPrice: web3.utils.toWei(await this._getGasPrice(), 'gwei') })
       .on('transactionHash', function(hash){
@@ -1678,7 +1686,7 @@ class Store {
   _callAddLiquidityToJob = async (account, address, amount, selectedLiquidityPair, callback) => {
     const web3 = await this._getWeb3Provider();
 
-    const keeperContract = new web3.eth.Contract(KeeperABI, config.keeperAddress)
+    const keeperContract = new web3.eth.Contract(KeeperABI, config.keeperAddress[web3.currentProvider.networkVersion])
 
     let amountToSend = (amount*10**selectedLiquidityPair.decimals).toFixed(0);
 
@@ -1741,8 +1749,8 @@ class Store {
 
   _getJobData = async (web3, keeperAsset, address,  account) => {
     try {
-      const keeperContract = new web3.eth.Contract(KeeperABI, config.keeperAddress)
-      const jobRegistryContract = new web3.eth.Contract(JobRegistryABI, config.jobRegistryAddress)
+      const keeperContract = new web3.eth.Contract(KeeperABI, config.keeperAddress[store.getStore("chainId")])
+      const jobRegistryContract = new web3.eth.Contract(JobRegistryABI, config.jobRegistryAddress[store.getStore("chainId")])
       const jobContract = new web3.eth.Contract(OwnableABI, address)
 
       const isJob = await keeperContract.methods.jobs(address).call({ })
@@ -1760,7 +1768,7 @@ class Store {
       jobProfile.isLpFunded = false;
       jobProfile.jobAdded = await jobRegistryContract.methods.jobAdded(address).call({})
 
-      let credits = await keeperContract.methods.credits(address, keeperAsset.address).call({ })
+      let credits = await keeperContract.methods.credits(address, keeperContract._address).call({ })
       credits = credits/10**keeperAsset.decimals
 
       jobProfile.credits = credits
@@ -1867,7 +1875,7 @@ class Store {
   _callApplyCreditToJob = async (account, address, selectedLiquidityPair, callback) => {
     const web3 = await this._getWeb3Provider();
 
-    const keeperContract = new web3.eth.Contract(KeeperABI, config.keeperAddress)
+    const keeperContract = new web3.eth.Contract(KeeperABI, config.keeperAddress[web3.currentProvider.networkVersion])
 
     keeperContract.methods.applyCreditToJob(account.address, selectedLiquidityPair.address, address).send({ from: account.address, gasPrice: web3.utils.toWei(await this._getGasPrice(), 'gwei') })
       .on('transactionHash', function(hash){
@@ -1918,7 +1926,7 @@ class Store {
   _callUnbondLiquidityFromJob = async (account, address, amount, selectedLiquidityPair, callback) => {
     const web3 = await this._getWeb3Provider();
 
-    const keeperContract = new web3.eth.Contract(KeeperABI, config.keeperAddress)
+    const keeperContract = new web3.eth.Contract(KeeperABI, config.keeperAddress[web3.currentProvider.networkVersion])
 
     let amountToSend = (amount*10**selectedLiquidityPair.decimals).toFixed(0);
 
@@ -1972,7 +1980,7 @@ class Store {
     const web3 = await this._getWeb3Provider();
     const keeperAsset = store.getStore('keeperAsset')
 
-    const keeperContract = new web3.eth.Contract(KeeperABI, config.keeperAddress)
+    const keeperContract = new web3.eth.Contract(KeeperABI, config.keeperAddress[web3.currentProvider.networkVersion])
 
     keeperContract.methods.removeLiquidityFromJob(keeperAsset.address, address).send({ from: account.address, gasPrice: web3.utils.toWei(await this._getGasPrice(), 'gwei') })
       .on('transactionHash', function(hash){
@@ -2023,7 +2031,7 @@ class Store {
   _callDown = async (account, address, callback) => {
     const web3 = await this._getWeb3Provider();
 
-    const keeperContract = new web3.eth.Contract(KeeperABI, config.keeperAddress)
+    const keeperContract = new web3.eth.Contract(KeeperABI, config.keeperAddress[web3.currentProvider.networkVersion])
 
     keeperContract.methods.down(address).send({ from: account.address, gasPrice: web3.utils.toWei(await this._getGasPrice(), 'gwei') })
       .on('transactionHash', function(hash){
@@ -2072,7 +2080,7 @@ class Store {
   _callTransferRights = async (from, to, callback) => {
     const web3 = await this._getWeb3Provider();
     const keeperAsset = this.getStore('keeperAsset')
-    const keeperContract = new web3.eth.Contract(KeeperABI, config.keeperAddress)
+    const keeperContract = new web3.eth.Contract(KeeperABI, config.keeperAddress[web3.currentProvider.networkVersion])
     keeperContract.methods.transferKeeperRight(keeperAsset.address, from, to, web3.utils.toWei(keeperAsset.bonds.toString())).send({ from, gasPrice: web3.utils.toWei(await this._getGasPrice(), 'gwei') })
         .on('transactionHash', function(hash){
           emitter.emit(TX_SUBMITTED, hash)
@@ -2120,7 +2128,7 @@ class Store {
 
   _addCredits = async (address, amount, callback) => {
     const web3 = await this._getWeb3Provider();
-    const keeperContract = new web3.eth.Contract(KeeperABI, config.keeperAddress);
+    const keeperContract = new web3.eth.Contract(KeeperABI, config.keeperAddress[web3.currentProvider.networkVersion]);
     const account = store.getStore('account').address;
     const keeperAddress = store.getStore('keeperAsset').address;
     keeperContract.methods.addCredit(keeperAddress, address, web3.utils.toWei(amount, 'ether'))
@@ -2160,7 +2168,7 @@ class Store {
     const account = store.getStore('account')
     const web3 = await this._getWeb3Provider();
     if(web3 == null) return;
-    const keeperContract = new web3.eth.Contract(KeeperABI, config.keeperAddress)
+    const keeperContract = new web3.eth.Contract(KeeperABI, config.keeperAddress[web3.currentProvider.networkVersion])
 
     let notException = true
     let index = 0
@@ -2237,7 +2245,7 @@ class Store {
       return
     }
 
-    const keeperContract = new web3.eth.Contract(KeeperABI, config.keeperAddress)
+    const keeperContract = new web3.eth.Contract(KeeperABI, config.keeperAddress[web3.currentProvider.networkVersion])
 
     async.map(liquidityPairs, async (lp, callback) => {
 
