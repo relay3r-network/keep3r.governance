@@ -350,7 +350,7 @@ class Header extends Component {
     return (
       <div className={ classes.accountDetailsSection }>
         <Typography className={ classes.accountDetailsBalance } variant='h4'>{ (keeperAsset && keeperAsset.balance) ? keeperAsset.balance.toFixed(2) : '0' } { keeperAsset ? keeperAsset.symbol : '' }</Typography>
-        <Typography className={ classes.accountDetailsBalance } variant='h4'>{store.getStore("chainId") === 1 ? "ETH" : "BSC"}</Typography>
+        <Typography className={ classes.accountDetailsBalance } variant='h4'>{parseInt(store.getStore("chainId")) === 1 ? "ETH" : "BSC"}</Typography>
         <Typography className={ classes.accountDetailsAddress } onClick={ this.addressClicked } variant='h4'>{ address } <div className={ classes.connectedDot }></div></Typography>
       </div>
     )

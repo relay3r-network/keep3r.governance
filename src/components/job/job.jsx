@@ -469,7 +469,7 @@ class Job extends Component {
     } = this.state
     let state = 'Inactive'
     let stateClass = classes.stateNeutral
-
+    let ShowLiqUi = store.getStore('liquidityPairs').length > 0;
     if(job.isJob) {
       state = 'Active'
       stateClass = classes.stateSuccess
@@ -576,7 +576,7 @@ class Job extends Component {
             </div>
           }
           {
-            job && job.isJob &&
+            job && job.isJob && ShowLiqUi &&
             <div className={ classes.jobMetadata }>
               <div className={ classes.jobInfo }>
                 <Typography variant='h4'>{ pendingLiquidityBonds } { selectedLiquidityPair ? selectedLiquidityPair.symbol : '' }</Typography>
@@ -591,7 +591,7 @@ class Job extends Component {
             </div>
           }
           {
-            job && job.isJob &&
+            job && job.isJob && ShowLiqUi &&
             <div className={ classes.liquidityContainer }>
               <div className={ classes.field }>
                 <div className={ classes.inputContainer }>
@@ -661,7 +661,7 @@ class Job extends Component {
             </div>
           }
           {
-            job && job.isJob &&
+            job && job.isJob && ShowLiqUi &&
             <div className={ classes.liquidityContainer }>
               <div className={ classes.field }>
                 <div className={ classes.buttonContainer}>
