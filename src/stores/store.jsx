@@ -1134,7 +1134,7 @@ class Store {
 
     try {
       const ChainID = web3.currentProvider.networkVersion;
-      const isETHMainnet = ChainID == 1;
+      const isETHMainnet = parseInt(ChainID) === 1;
       const keeperContract = new web3.eth.Contract(KeeperABI, config.keeperAddress[web3.currentProvider.networkVersion])
       const keeperContractLegacy = new web3.eth.Contract(KeeperABI, config.keeperAddressLegacy[web3.currentProvider.networkVersion])
 
