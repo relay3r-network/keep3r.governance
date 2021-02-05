@@ -1137,7 +1137,7 @@ class Store {
       const isETHMainnet = parseInt(ChainID) === 1;
       const keeperContract = new web3.eth.Contract(KeeperABI, config.keeperAddress[web3.currentProvider.networkVersion])
       const keeperContractLegacy = new web3.eth.Contract(KeeperABI, config.keeperAddressLegacy[web3.currentProvider.networkVersion])
-
+      keeperAsset.address = keeperContract._address;
       keeperAsset.contract = keeperContract;
       keeperAsset.contractLegacy =keeperContractLegacy;
       let balance = await keeperContract.methods.balanceOf(address).call({ })
