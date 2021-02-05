@@ -349,8 +349,8 @@ class Header extends Component {
 
     return (
       <div className={ classes.accountDetailsSection }>
+        <img  className={ classes.accountDetailsAddress } src= {parseInt(store.getStore("chainId")) === 1 ? require("../../assets/eth-logo.png") : require("../../assets/bnb-logo.png")} alt="network" width={ parseInt(store.getStore("chainId")) === 1 ? "46px" : "55px"} height="30px"></img>
         <Typography className={ classes.accountDetailsBalance } variant='h4'>{ (keeperAsset && keeperAsset.balance) ? keeperAsset.balance.toFixed(2) : '0' } { keeperAsset ? keeperAsset.symbol : '' }</Typography>
-        <Typography className={ classes.accountDetailsBalance } variant='h4'>{parseInt(store.getStore("chainId")) === 1 ? "ETH" : "BSC"}</Typography>
         <Typography className={ classes.accountDetailsAddress } onClick={ this.addressClicked } variant='h4'>{ address } <div className={ classes.connectedDot }></div></Typography>
       </div>
     )
