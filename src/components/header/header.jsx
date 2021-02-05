@@ -258,7 +258,6 @@ class Header extends Component {
   }
 
   chainIdReturned = () => {
-    emitter.emit(STOP_LOADING, GET_CHAIN_ID)
 
     emitter.emit(START_LOADING, GET_BALANCES)
     emitter.emit(START_LOADING, GET_GAS_PRICES)
@@ -280,6 +279,7 @@ class Header extends Component {
 
   gasPricesReturned = () => {
     emitter.emit(STOP_LOADING, GET_GAS_PRICES)
+    emitter.emit(STOP_LOADING, GET_CHAIN_ID)
     this.setState({ gasPrices: store.getStore('gasPrices') })
   }
 

@@ -52,7 +52,6 @@ import {
   WITHDRAW_BOND,
   WITHDRAW_BOND_RETURNED,
   SWAP_APPROVE,
-  SWAP_APPROVED,
   SWAP_EXECUTE,
   SWAP_APPROVE_RETURNED,
   SWAP_EXECUTE_RETURNED, TRANSFER_RIGHTS, TRANSFER_RIGHTS_RETURNED
@@ -326,9 +325,7 @@ class Keeper extends Component {
     emitter.emit(START_LOADING, GET_CHAIN_ID);
     emitter.emit(START_LOADING, GET_CURRENT_BLOCK);
 
-    // emitter.emit(START_LOADING, SWAP_APPROVED);
     //Finally get the approval status
-    // dispatcher.dispatch({ type: SWAP_APPROVED, content: {} });
     dispatcher.dispatch({ type: GET_CHAIN_ID, content: {} });
     dispatcher.dispatch({ type: GET_CURRENT_BLOCK, content: {} });
 
@@ -349,7 +346,6 @@ class Keeper extends Component {
   };
 
   chainIdReturned = () => {
-    emitter.emit(STOP_LOADING, GET_CHAIN_ID)
     //Start loading and dispatch only if we got supported chainid
     emitter.emit(START_LOADING, GET_KEEPER);
     emitter.emit(START_LOADING, GET_JOBS);
@@ -370,6 +366,7 @@ class Keeper extends Component {
   };
 
   keepersReturned = () => {
+    emitter.emit(STOP_LOADING, GET_CHAIN_ID)
     emitter.emit(STOP_LOADING, GET_KEEPERS);
     this.setState({ keepers: store.getStore("keepers") });
   };
