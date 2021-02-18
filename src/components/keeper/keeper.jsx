@@ -533,7 +533,7 @@ class Keeper extends Component {
 
   renderSwap = () => {
     const { classes } = this.props
-    const { approved,keeperAsset,loading} = this.state
+    const { keeperAsset,loading } = this.state
     let timeRemaining = (moment(1605550155*1000) -  moment().valueOf() )/ 1000;
     if(keeperAsset.balanceRLRV2 >0 && timeRemaining <=0){
       return(
