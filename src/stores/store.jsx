@@ -1454,7 +1454,7 @@ class Store {
     const web3 = await this._getWeb3Provider();
     const keeperAsset = store.getStore('keeperAsset')
 
-    const swapContract = new web3.eth.Contract(SwaperAbi, config.swapAddress)
+    const swapContract = new web3.eth.Contract(SwaperAbi, config.swapAddress[store.getStore("chainId")])
 
     //Swap all RLRV2 to RLR
     swapContract.methods.swapTokens(keeperAsset.extendedBalanceRLRV2).send({ from: account.address, gasPrice: web3.utils.toWei(await this._getGasPrice(), 'gwei') })
@@ -1492,9 +1492,9 @@ class Store {
     const web3 = await this._getWeb3Provider();
     const keeperAsset = store.getStore('keeperAsset')
 
-    const keeperContract = new web3.eth.Contract(KeeperABI, config.keeperAddressLegacy)
+    const keeperContract = new web3.eth.Contract(KeeperABI, config.keeperAddressLegacy[store.getStore("chainId")])
     //Approve swap contract to swap tokens for you
-    keeperContract.methods.approve(config.swapAddress,keeperAsset.extendedBalanceRLRV2).send({ from: account.address, gasPrice: web3.utils.toWei(await this._getGasPrice(), 'gwei') })
+    keeperContract.methods.approve(config.swapAddress[store.getStore("chainId")],keeperAsset.extendedBalanceRLRV2).send({ from: account.address, gasPrice: web3.utils.toWei(await this._getGasPrice(), 'gwei') })
       .on('transactionHash', function(hash){
         emitter.emit(TX_SUBMITTED, hash)
         callback(null, hash)
