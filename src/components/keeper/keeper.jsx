@@ -445,14 +445,14 @@ class Keeper extends Component {
       <div className={ classes.root }>
         <div className={ classes.keeperLayout }>
           <Card className={ classes.profileContainer }>
-          <Typography variant='h3' className={ classes.title }>{ !keeperAsset.loadingData ? `Profile`: <Skeleton variant="text" width="35%" height="50%"/>}</Typography>
+          <Typography variant='h3' className={ classes.title }>{ !keeperAsset.loadingData ? `Profile`: <Skeleton animation="wave"  variant="text" width="35%" height="50%"/>}</Typography>
             <div className={ classes.valueContainer }>
-              <Typography variant='h4' className={ classes.valueTitle }>{!keeperAsset.loadingData ? 'Balance': <Skeleton variant="text" width="25%" height="10%"/>}</Typography>
-              <Typography variant='h3' className={ classes.valueValue }> {!keeperAsset.loadingData ? keeperAsset.balance.toFixed(2) + ` ${keeperAsset.symbol}` : <Skeleton /> }  </Typography>
+              <Typography variant='h4' className={ classes.valueTitle }>{!keeperAsset.loadingData ? 'Balance': <Skeleton animation="wave"  variant="text" width="25%" height="10%"/>}</Typography>
+              <Typography variant='h3' className={ classes.valueValue }> {!keeperAsset.loadingData ? keeperAsset.balance.toFixed(2) + ` ${keeperAsset.symbol}` : <Skeleton animation="wave"  /> }  </Typography>
             </div>
             <div className={classes.valueContainer}>
               <Typography variant="h4" className={classes.valueTitle}>
-              {!keeperAsset.loadingData ? 'Bonds': <Skeleton variant="text" width="25%" height="10%"/>}
+              {!keeperAsset.loadingData ? 'Bonds': <Skeleton animation="wave"  variant="text" width="25%" height="10%"/>}
               </Typography>
               {!onBond && !onBondRemove && this.renderBond()}
               {onBond && this.renderBondAdd()}
@@ -471,7 +471,7 @@ class Keeper extends Component {
           <Card className={classes.jobsContainer}>
             <CardHeader
               title={
-                <Typography variant="h3">{!keeperAsset.loadingData ? 'Jobs' : <Skeleton variant="text" width="15%" height="10%"/>}</Typography>
+                <Typography variant="h3">{!keeperAsset.loadingData ? 'Jobs' : <Skeleton animation="wave"  variant="text" width="15%" height="10%"/>}</Typography>
               }
               action={
                 !keeperAsset.loadingData ?
@@ -484,7 +484,7 @@ class Keeper extends Component {
                   >
                     <AddIcon />
                   </Fab>
-                </Tooltip> : <Skeleton variant="circle"> <Fab></Fab></Skeleton>
+                </Tooltip> : <Skeleton animation="wave"  variant="circle"> <Fab></Fab></Skeleton>
               }
             ></CardHeader>
             <CardContent>
@@ -527,7 +527,7 @@ class Keeper extends Component {
           InputProps={{
             endAdornment: <InputAdornment position="end" className={ classes.searchInputAdornment } onClick={ this.onSearch }><SearchIcon /></InputAdornment>,
           }}
-        /> : <Skeleton width="100%"><TextField fullWidth className={classes.actionInput} /></Skeleton>}
+        /> : <Skeleton animation="wave"  width="100%"><TextField fullWidth className={classes.actionInput} /></Skeleton>}
       </div>
     )
   }
@@ -582,7 +582,7 @@ class Keeper extends Component {
     jobs = this.removeDuplicates(jobs,"address");
     if(keeperAsset.loadingData) {
       return (<div>
-        <Skeleton width="100%">
+        <Skeleton animation="wave"  width="100%">
         <ListItem>
         <ListItemText primary={'Loading'} secondary="Loading"></ListItemText>
         </ListItem>
@@ -748,8 +748,8 @@ class Keeper extends Component {
 
     return (
       <div className={ classes.valueContainer }>
-        <Typography variant='h4' className={ classes.valueTitle }>{ !keeperAsset.loadingData ? `Work Rewards`: <Skeleton/>}</Typography>
-        <Typography variant='h3' className={ classes.valueValue }>{ !keeperAsset.loadingData ? keeperAsset.workCompleted.toFixed(4) + ` ${keeperAsset.symbol}`: <Skeleton/>}</Typography>
+        <Typography variant='h4' className={ classes.valueTitle }>{ !keeperAsset.loadingData ? `Work Rewards`: <Skeleton animation="wave" />}</Typography>
+        <Typography variant='h3' className={ classes.valueValue }>{ !keeperAsset.loadingData ? keeperAsset.workCompleted.toFixed(4) + ` ${keeperAsset.symbol}`: <Skeleton animation="wave" />}</Typography>
       </div>
     )
 
@@ -763,20 +763,20 @@ class Keeper extends Component {
       <div className={classes.valueActionBonds}>
         <Typography variant="h3" className={classes.valueValue}>
           {" "}
-          {!keeperAsset.loadingData ? keeperAsset.bonds.toFixed(2) + ` ${keeperAsset.symbol}` : <Skeleton/>}
+          {!keeperAsset.loadingData ? keeperAsset.bonds.toFixed(2) + ` ${keeperAsset.symbol}` : <Skeleton animation="wave" />}
         </Typography>
         <Grid container className={classes.grid} spacing={4}>
           <Grid item xs={12}>
             <Grid container justify="center" spacing={2}>
               <Grid key={"bond"} item>
-                {keeperAsset.loadingData ? <Skeleton><Button size="small"/></Skeleton> :
+                {keeperAsset.loadingData ? <Skeleton animation="wave" ><Button size="small"/></Skeleton> :
                 <Button size="small" color="primary" onClick={this.onBondAdd}>
                   Bond
                 </Button>
                 }
               </Grid>
               <Grid key={"unbond"} item>
-              {keeperAsset.loadingData ? <Skeleton><Button size="small"/></Skeleton> :
+              {keeperAsset.loadingData ? <Skeleton animation="wave" ><Button size="small"/></Skeleton> :
                 <Button size="small" color="primary" onClick={this.onBondRemove}>
                   Unbond
                 </Button>
@@ -800,7 +800,7 @@ class Keeper extends Component {
         <div className={ classes.valueContainer }>
           <Typography variant='h4' className={ classes.valueTitle }>Bonds pending</Typography>
           <div className={ classes.valueAction }>
-            <Typography variant='h3' className={ classes.valueValue }> { !keeperAsset.loadingData ? keeperAsset.pendingBonds.toFixed(2) + ` ${keeperAsset.symbol}` : <Skeleton/> } </Typography>
+            <Typography variant='h3' className={ classes.valueValue }> { !keeperAsset.loadingData ? keeperAsset.pendingBonds.toFixed(2) + ` ${keeperAsset.symbol}` : <Skeleton animation="wave" /> } </Typography>
           </div>
         </div>
       );

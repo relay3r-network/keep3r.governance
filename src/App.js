@@ -196,9 +196,9 @@ class App extends Component {
                 </Route>
               </Switch>
             </div>
-            { loading.length > 0 &&
+            {/* { loading.length > 0 &&
               <Loader />
-            }
+            } */}
           <Footer />
           </div>
           <SnackbarController />
