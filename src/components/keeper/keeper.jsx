@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import * as moment from "moment";
 import { withRouter } from "react-router-dom";
 import Countdown from 'react-countdown';
+import Skeleton from '@material-ui/lab/Skeleton';
 
 import { withStyles } from "@material-ui/core/styles";
 import {
@@ -444,14 +445,14 @@ class Keeper extends Component {
       <div className={ classes.root }>
         <div className={ classes.keeperLayout }>
           <Card className={ classes.profileContainer }>
-            <Typography variant='h3' className={ classes.title }>Profile</Typography>
+          <Typography variant='h3' className={ classes.title }>{ !keeperAsset.loadingData ? `Profile`: <Skeleton animation="wave"  variant="text" width="35%" height="50%"/>}</Typography>
             <div className={ classes.valueContainer }>
-              <Typography variant='h4' className={ classes.valueTitle }>Balance</Typography>
-              <Typography variant='h3' className={ classes.valueValue }> { keeperAsset.balance ? keeperAsset.balance.toFixed(2) : '0.00' } { keeperAsset.symbol } </Typography>
+              <Typography variant='h4' className={ classes.valueTitle }>{!keeperAsset.loadingData ? 'Balance': <Skeleton animation="wave"  variant="text" width="25%" height="10%"/>}</Typography>
+              <Typography variant='h3' className={ classes.valueValue }> {!keeperAsset.loadingData ? keeperAsset.balance.toFixed(2) + ` ${keeperAsset.symbol}` : <Skeleton animation="wave"  /> }  </Typography>
             </div>
             <div className={classes.valueContainer}>
               <Typography variant="h4" className={classes.valueTitle}>
-                Bonds
+              {!keeperAsset.loadingData ? 'Bonds': <Skeleton animation="wave"  variant="text" width="25%" height="10%"/>}
               </Typography>
               {!onBond && !onBondRemove && this.renderBond()}
               {onBond && this.renderBondAdd()}
@@ -470,10 +471,10 @@ class Keeper extends Component {
           <Card className={classes.jobsContainer}>
             <CardHeader
               title={
-                // <div className={classes.title}>
-                <Typography variant="h3">Jobs</Typography>
+                <Typography variant="h3">{!keeperAsset.loadingData ? 'Jobs' : <Skeleton animation="wave"  variant="text" width="15%" height="10%"/>}</Typography>
               }
               action={
+                !keeperAsset.loadingData ?
                 <Tooltip title="Add Job" aria-label="add">
                   <Fab
                     color="primary"
@@ -483,7 +484,7 @@ class Keeper extends Component {
                   >
                     <AddIcon />
                   </Fab>
-                </Tooltip>
+                </Tooltip> : <Skeleton animation="wave"  variant="circle"> <Fab></Fab></Skeleton>
               }
             ></CardHeader>
             <CardContent>
@@ -509,11 +510,11 @@ class Keeper extends Component {
 
   renderSearch = () => {
     const { classes } = this.props
-    const { loading, searchKeeper, searchKeeperError } = this.state
+    const { loading, searchKeeper, searchKeeperError, keeperAsset } = this.state
 
     return (
       <div className={ classes.valueContainer }>
-        <TextField
+        {!keeperAsset.loadingData ? <TextField
           fullWidth
           disabled={ loading }
           className={ classes.actionInput }
@@ -526,7 +527,7 @@ class Keeper extends Component {
           InputProps={{
             endAdornment: <InputAdornment position="end" className={ classes.searchInputAdornment } onClick={ this.onSearch }><SearchIcon /></InputAdornment>,
           }}
-        />
+        /> : <Skeleton animation="wave"  width="100%"><TextField fullWidth className={classes.actionInput} /></Skeleton>}
       </div>
     )
   }
@@ -579,7 +580,16 @@ class Keeper extends Component {
     const { classes } = this.props;
     var { jobs, keeperAsset } = this.state;
     jobs = this.removeDuplicates(jobs,"address");
-    if (jobs.length === 0) {
+    if(keeperAsset.loadingData) {
+      return (<div>
+        <Skeleton animation="wave"  width="100%">
+        <ListItem>
+        <ListItemText primary={'Loading'} secondary="Loading"></ListItemText>
+        </ListItem>
+        </Skeleton>
+      </div>)
+    }
+    else if (jobs.length === 0) {
       return (
         <div>
           <Typography variant="h4">There are no jobs</Typography>
@@ -738,8 +748,8 @@ class Keeper extends Component {
 
     return (
       <div className={ classes.valueContainer }>
-        <Typography variant='h4' className={ classes.valueTitle }>Work Rewards</Typography>
-        <Typography variant='h3' className={ classes.valueValue }>{ (keeperAsset.workCompleted ? keeperAsset.workCompleted.toFixed(4) : '0') + ` ${keeperAsset.symbol}` }</Typography>
+        <Typography variant='h4' className={ classes.valueTitle }>{ !keeperAsset.loadingData ? `Work Rewards`: <Skeleton animation="wave" />}</Typography>
+        <Typography variant='h3' className={ classes.valueValue }>{ !keeperAsset.loadingData ? keeperAsset.workCompleted.toFixed(4) + ` ${keeperAsset.symbol}`: <Skeleton animation="wave" />}</Typography>
       </div>
     )
 
@@ -753,21 +763,24 @@ class Keeper extends Component {
       <div className={classes.valueActionBonds}>
         <Typography variant="h3" className={classes.valueValue}>
           {" "}
-          {keeperAsset.bonds ? keeperAsset.bonds.toFixed(2) : "0.00"}{" "}
-          {keeperAsset.symbol}{" "}
+          {!keeperAsset.loadingData ? keeperAsset.bonds.toFixed(2) + ` ${keeperAsset.symbol}` : <Skeleton animation="wave" />}
         </Typography>
         <Grid container className={classes.grid} spacing={4}>
           <Grid item xs={12}>
             <Grid container justify="center" spacing={2}>
               <Grid key={"bond"} item>
+                {keeperAsset.loadingData ? <Skeleton animation="wave" ><Button size="small"/></Skeleton> :
                 <Button size="small" color="primary" onClick={this.onBondAdd}>
                   Bond
                 </Button>
+                }
               </Grid>
               <Grid key={"unbond"} item>
+              {keeperAsset.loadingData ? <Skeleton animation="wave" ><Button size="small"/></Skeleton> :
                 <Button size="small" color="primary" onClick={this.onBondRemove}>
                   Unbond
                 </Button>
+              }
               </Grid>
             </Grid>
           </Grid>
@@ -787,7 +800,7 @@ class Keeper extends Component {
         <div className={ classes.valueContainer }>
           <Typography variant='h4' className={ classes.valueTitle }>Bonds pending</Typography>
           <div className={ classes.valueAction }>
-            <Typography variant='h3' className={ classes.valueValue }> { keeperAsset.pendingBonds ? keeperAsset.pendingBonds.toFixed(2) : '0.00' } { keeperAsset.symbol } </Typography>
+            <Typography variant='h3' className={ classes.valueValue }> { !keeperAsset.loadingData ? keeperAsset.pendingBonds.toFixed(2) + ` ${keeperAsset.symbol}` : <Skeleton animation="wave" /> } </Typography>
           </div>
         </div>
       );
@@ -898,7 +911,7 @@ class Keeper extends Component {
               this.maxClicked("bond");
             }}
           >
-            {keeperAsset.balance.toFixed(4)} {keeperAsset.symbol}
+            {keeperAsset.balance.toFixed(4) + ` ${keeperAsset.symbol}`}
           </Typography>
           <TextField
             fullwidth
